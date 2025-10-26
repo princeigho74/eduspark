@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BookOpen, MessageCircle, Sparkles, Search, Menu, X, ChevronRight, GraduationCap, Brain, Zap, CreditCard, Star, Users, Award, TrendingUp, Play, Target, Eye, Heart, CheckCircle, BarChart, Trophy, Clock, Download } from 'lucide-react';
 
-const PAYSTACK_PUBLIC_KEY = 'pk_test_xxxxxxxxxxxxx';
+const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_xxxxxxxxxxxxx';
 const LOGO_URL = "https://i.imgur.com/LsQEpvp.png";
 
 const COURSES_DATA = {
