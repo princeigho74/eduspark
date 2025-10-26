@@ -1,131 +1,270 @@
-import React, { useState, useEffect, useRef } from 'react';
+const renderCourseCard = (course, level, levelData) => {
+    const isEnrolled = enrolledCourses[course.name];
+    const hasTrial = trialCourses[course.name];
+    const progress = userProgress[course.name] || 0;
+    const plans = levelData.plans;
+    const currentPlan = selectedPlan[course.name] || 'trial';
+
+    return (
+      <div key={course.name} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all transform hover:-translate-y-1 border border-gray-100">
+        <div className="text-4xl mb-3">{course.icon}</div>
+        <h3 className="font-bold text-lg mb-2 text-gray-800">{course.name}</h3>
+        <p className="text-sm text-gray-600 mb-3">{course.aiFeature}</p>
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+          <span className="flex items-center gap-1">
+            <BookOpen className="w-3 h-3" />
+            {course.lessons} lessons
+          </span>
+          <span className="flex items-center gap-1">
+            <Target className="w-3 h-3" />
+            {course.topics} topics
+          </span>
+        </div>
+
+        {/* Subscription Plans */}
+        {!isEnrolled && (
+          <div className="mb-4 space-y-2">
+            <p className="text-xs font-semibold text-gray-700 mb-2">Choose a plan:</p>
+            {Object.entries(plans).map(([key, plan]) => (
+              <button
+                key={key}
+                onClick={() => setSelectedPlan(prev => ({ ...prev, [course.name]: key }))}
+                className={`w-full p-3 rounded-lg border-2 transition-all text-left ${
+                  currentPlan === key 
+                    ? 'border-purple-600 bg-purple-50' 
+                    : 'border-gray-200 hover:border-purple-300'
+                }`}
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="font-bold text-sm">{plan.name}</div>
+                    <div className="text-xs text-gray-600">{plan.access}</div>
+                  </div>
+                  <div className="text-lg font-bold text-purple-600">{plan.price}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {isEnrolled && (
+          <div className="mb-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs font-medium text-gray-600">Progress</span>
+              <span className="text-xs font-bold text-purple-600">{progress}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-purple-600 to-blue-600 h-2 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+        
+        {!isEnrolled && (
+          <button 
+            onClick={() => {
+              const plan = plans[currentPlan];
+              if (plan.priceValue === 0) {
+                handleFreeTrial(course.name);
+              } else {
+                handlePayment(course.name, plan.priceValue);
+              }
+            }}
+            className={`w-full py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-2 shadow-md ${
+              plans[currentPlan].priceValue === 0
+                ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600'
+                : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700'
+            }`}
+          >
+            {plans[currentPlan].priceValue === 0 ? (
+              <>
+                <Play className="w-4 h-4" />
+                Start Free Trial
+              </>
+            ) : (
+              <>
+                <CreditCard className="w-4 h-4" />
+                Subscribe - {plans[currentPlan].price}
+              </>
+            )}
+          </button>
+        )}
+
+        {isEnrolled && (
+          <button 
+            onClick={() => simulateProgress(course.name)}
+            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-all flex items-center justify-center gap-2 shadow-md"
+          >
+            <Play className="w-4 h-4" />
+            Continue Learning
+          </button>
+        )}
+        
+        {hasTrial && !isEnrolled && (
+          <div className="mt-2 text-xs text-center text-green-600 font-medium flex items-center justify-center gap-1">
+            <CheckCircle className="w-3 h-3" />
+            Trial Active - 3 Lessons Available
+          </div>
+        )}
+
+        {isEnrolled && (
+          <div className="mt-2 text-xs text-center text-blue-600 font-medium flex items-center justify-center gap-1">
+            <Trophy className="w-3 h-3" />
+            Enrolled - Full Access
+          </div>
+        )}
+      </div>
+    );
+  };import React, { useState, useEffect, useRef } from 'react';
 import { BookOpen, MessageCircle, Sparkles, Search, Menu, X, ChevronRight, GraduationCap, Brain, Zap, CreditCard, Star, Users, Award, TrendingUp, Play, Target, Eye, Heart, CheckCircle, BarChart, Trophy, Clock, Download } from 'lucide-react';
 
-const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_xxxxxxxxxxxxx';
+const PAYSTACK_PUBLIC_KEY = 'pk_test_xxxxxxxxxxxxx';
 const LOGO_URL = "https://i.imgur.com/LsQEpvp.png";
 
 const COURSES_DATA = {
   primary: {
     name: "Primary School",
     levels: "P1 - P6",
-    price: "$5",
-    priceValue: 5,
+    plans: {
+      trial: { name: "Free Trial", price: "$0", priceValue: 0, access: "3 lessons" },
+      basic: { name: "Basic", price: "$1", priceValue: 1, access: "10 lessons" },
+      standard: { name: "Standard", price: "$3", priceValue: 3, access: "Full course" },
+      premium: { name: "Premium", price: "$5", priceValue: 5, access: "Full + AI tutoring" }
+    },
     subjects: [
-      { name: "English Language", icon: "📝", aiFeature: "AI-assisted spelling games", topics: 12, trial: true },
-      { name: "Mathematics", icon: "🔢", aiFeature: "Pattern recognition & logic games", topics: 15, trial: true },
-      { name: "Science", icon: "🔬", aiFeature: "AI simulations & experiments", topics: 10, trial: true },
-      { name: "ICT/Computer Studies", icon: "💻", aiFeature: "AI basics & Scratch Jr coding", topics: 8, trial: true },
-      { name: "Creative Arts", icon: "🎨", aiFeature: "AI coloring & music tools", topics: 6, trial: true },
-      { name: "Physical & Health Ed", icon: "⚽", aiFeature: "Smart health device demos", topics: 5, trial: true }
+      { name: "English Language", icon: "📝", aiFeature: "AI-assisted spelling games", topics: 12, lessons: 24, trial: true },
+      { name: "Mathematics", icon: "🔢", aiFeature: "Pattern recognition & logic games", topics: 15, lessons: 30, trial: true },
+      { name: "Science", icon: "🔬", aiFeature: "AI simulations & experiments", topics: 10, lessons: 20, trial: true },
+      { name: "ICT/Computer Studies", icon: "💻", aiFeature: "AI basics & Scratch Jr coding", topics: 8, lessons: 16, trial: true },
+      { name: "Creative Arts", icon: "🎨", aiFeature: "AI coloring & music tools", topics: 6, lessons: 12, trial: true },
+      { name: "Physical & Health Ed", icon: "⚽", aiFeature: "Smart health device demos", topics: 5, lessons: 10, trial: true }
     ]
   },
   jss: {
     name: "Junior Secondary",
     levels: "JSS1 - JSS3",
-    price: "$5",
-    priceValue: 5,
+    plans: {
+      trial: { name: "Free Trial", price: "$0", priceValue: 0, access: "3 lessons" },
+      basic: { name: "Basic", price: "$1", priceValue: 1, access: "10 lessons" },
+      standard: { name: "Standard", price: "$3", priceValue: 3, access: "Full course" },
+      premium: { name: "Premium", price: "$5", priceValue: 5, access: "Full + AI tutoring" }
+    },
     subjects: [
-      { name: "English Language", icon: "📖", aiFeature: "AI storytelling & grammar", topics: 20, trial: true },
-      { name: "Mathematics", icon: "➗", aiFeature: "Pattern analysis & problem solving", topics: 25, trial: true },
-      { name: "Basic Science", icon: "🧪", aiFeature: "Interactive simulations", topics: 18, trial: true },
-      { name: "Social Studies", icon: "🌍", aiFeature: "AI-enhanced research", topics: 15, trial: true },
-      { name: "ICT", icon: "🖥️", aiFeature: "Python basics & simple chatbots", topics: 16, trial: true },
-      { name: "Agricultural Science", icon: "🌾", aiFeature: "Smart farming intro", topics: 12, trial: true },
-      { name: "Home Economics", icon: "🏠", aiFeature: "AI nutrition planning", topics: 10, trial: true },
-      { name: "Basic Technology", icon: "🔧", aiFeature: "Design simulations", topics: 14, trial: true }
+      { name: "English Language", icon: "📖", aiFeature: "AI storytelling & grammar", topics: 20, lessons: 40, trial: true },
+      { name: "Mathematics", icon: "➗", aiFeature: "Pattern analysis & problem solving", topics: 25, lessons: 50, trial: true },
+      { name: "Basic Science", icon: "🧪", aiFeature: "Interactive simulations", topics: 18, lessons: 36, trial: true },
+      { name: "Social Studies", icon: "🌍", aiFeature: "AI-enhanced research", topics: 15, lessons: 30, trial: true },
+      { name: "ICT", icon: "🖥️", aiFeature: "Python basics & simple chatbots", topics: 16, lessons: 32, trial: true },
+      { name: "Agricultural Science", icon: "🌾", aiFeature: "Smart farming intro", topics: 12, lessons: 24, trial: true },
+      { name: "Home Economics", icon: "🏠", aiFeature: "AI nutrition planning", topics: 10, lessons: 20, trial: true },
+      { name: "Basic Technology", icon: "🔧", aiFeature: "Design simulations", topics: 14, lessons: 28, trial: true }
     ]
   },
   sss: {
     name: "Senior Secondary",
     levels: "SS1 - SS3",
-    price: "$5",
-    priceValue: 5,
+    plans: {
+      trial: { name: "Free Trial", price: "$0", priceValue: 0, access: "3 lessons" },
+      basic: { name: "Basic", price: "$1", priceValue: 1, access: "10 lessons" },
+      standard: { name: "Standard", price: "$3", priceValue: 3, access: "Full course" },
+      premium: { name: "Premium", price: "$5", priceValue: 5, access: "Full + AI tutoring" }
+    },
     streams: {
       science: [
-        { name: "Physics", icon: "⚛️", aiFeature: "AI experiments & simulations", topics: 30, trial: true },
-        { name: "Chemistry", icon: "🧬", aiFeature: "Predictive analysis & lab simulations", topics: 28, trial: true },
-        { name: "Biology", icon: "🦠", aiFeature: "AI-powered experiments", topics: 26, trial: true },
-        { name: "Mathematics", icon: "📐", aiFeature: "Advanced problem solving", topics: 35, trial: true },
-        { name: "Further Mathematics", icon: "∞", aiFeature: "Pattern recognition", topics: 32, trial: true }
+        { name: "Physics", icon: "⚛️", aiFeature: "AI experiments & simulations", topics: 30, lessons: 60, trial: true },
+        { name: "Chemistry", icon: "🧬", aiFeature: "Predictive analysis & lab simulations", topics: 28, lessons: 56, trial: true },
+        { name: "Biology", icon: "🦠", aiFeature: "AI-powered experiments", topics: 26, lessons: 52, trial: true },
+        { name: "Mathematics", icon: "📐", aiFeature: "Advanced problem solving", topics: 35, lessons: 70, trial: true },
+        { name: "Further Mathematics", icon: "∞", aiFeature: "Pattern recognition", topics: 32, lessons: 64, trial: true }
       ],
       arts: [
-        { name: "Literature", icon: "📚", aiFeature: "AI text analysis", topics: 22, trial: true },
-        { name: "History", icon: "🏛️", aiFeature: "AI research tools", topics: 20, trial: true },
-        { name: "Geography", icon: "🗺️", aiFeature: "Climate modeling", topics: 24, trial: true },
-        { name: "Government", icon: "⚖️", aiFeature: "Policy analysis", topics: 18, trial: true },
-        { name: "Economics", icon: "📊", aiFeature: "Market predictions", topics: 25, trial: true }
+        { name: "Literature", icon: "📚", aiFeature: "AI text analysis", topics: 22, lessons: 44, trial: true },
+        { name: "History", icon: "🏛️", aiFeature: "AI research tools", topics: 20, lessons: 40, trial: true },
+        { name: "Geography", icon: "🗺️", aiFeature: "Climate modeling", topics: 24, lessons: 48, trial: true },
+        { name: "Government", icon: "⚖️", aiFeature: "Policy analysis", topics: 18, lessons: 36, trial: true },
+        { name: "Economics", icon: "📊", aiFeature: "Market predictions", topics: 25, lessons: 50, trial: true }
       ],
       commercial: [
-        { name: "Accounting", icon: "💰", aiFeature: "AI financial analysis", topics: 28, trial: true },
-        { name: "Commerce", icon: "🏪", aiFeature: "Business predictions", topics: 22, trial: true },
-        { name: "Business Studies", icon: "💼", aiFeature: "Marketing analytics", topics: 24, trial: true },
-        { name: "Economics", icon: "📈", aiFeature: "Economic modeling", topics: 25, trial: true }
+        { name: "Accounting", icon: "💰", aiFeature: "AI financial analysis", topics: 28, lessons: 56, trial: true },
+        { name: "Commerce", icon: "🏪", aiFeature: "Business predictions", topics: 22, lessons: 44, trial: true },
+        { name: "Business Studies", icon: "💼", aiFeature: "Marketing analytics", topics: 24, lessons: 48, trial: true },
+        { name: "Economics", icon: "📈", aiFeature: "Economic modeling", topics: 25, lessons: 50, trial: true }
       ]
     }
   },
   preuni: {
     name: "Pre-University Tutorials",
     levels: "University Prep",
-    price: "$5",
-    priceValue: 5,
+    plans: {
+      trial: { name: "Free Trial", price: "$0", priceValue: 0, access: "3 lessons" },
+      basic: { name: "Basic", price: "$3", priceValue: 3, access: "15 lessons" },
+      standard: { name: "Standard", price: "$5", priceValue: 5, access: "Full course" },
+      premium: { name: "Premium", price: "$20", priceValue: 20, access: "Full + AI tutoring + Mock exams" }
+    },
     subjects: [
-      { name: "Advanced Mathematics", icon: "🎓", aiFeature: "STEM exam prep", topics: 40, trial: true },
-      { name: "Physics Fundamentals", icon: "🔭", aiFeature: "University bridge course", topics: 35, trial: true },
-      { name: "Chemistry Essentials", icon: "⚗️", aiFeature: "Lab prep & theory", topics: 33, trial: true },
-      { name: "Biology Advanced", icon: "🧫", aiFeature: "Medical prep course", topics: 38, trial: true },
-      { name: "Academic English", icon: "✍️", aiFeature: "Essay writing & research", topics: 25, trial: true },
-      { name: "Coding & AI Basics", icon: "👨‍💻", aiFeature: "Tech course preparation", topics: 30, trial: true }
+      { name: "Advanced Mathematics", icon: "🎓", aiFeature: "STEM exam prep", topics: 40, lessons: 80, trial: true },
+      { name: "Physics Fundamentals", icon: "🔭", aiFeature: "University bridge course", topics: 35, lessons: 70, trial: true },
+      { name: "Chemistry Essentials", icon: "⚗️", aiFeature: "Lab prep & theory", topics: 33, lessons: 66, trial: true },
+      { name: "Biology Advanced", icon: "🧫", aiFeature: "Medical prep course", topics: 38, lessons: 76, trial: true },
+      { name: "Academic English", icon: "✍️", aiFeature: "Essay writing & research", topics: 25, lessons: 50, trial: true },
+      { name: "Coding & AI Basics", icon: "👨‍💻", aiFeature: "Tech course preparation", topics: 30, lessons: 60, trial: true }
     ]
   },
   university: {
     name: "University/Tertiary",
     levels: "Undergraduate & Postgraduate",
-    price: "$5",
-    priceValue: 5,
+    plans: {
+      trial: { name: "Free Trial", price: "$0", priceValue: 0, access: "3 lessons" },
+      basic: { name: "Basic", price: "$5", priceValue: 5, access: "20 lessons" },
+      standard: { name: "Standard", price: "$10", priceValue: 10, access: "Full course" },
+      premium: { name: "Premium", price: "$20", priceValue: 20, access: "Full + AI tutoring + Research support" }
+    },
     faculties: {
       tech: {
         name: "Science & Technology",
         courses: [
-          { name: "Machine Learning", icon: "🤖", aiFeature: "Deep Learning projects", topics: 45, trial: true },
-          { name: "Computer Vision", icon: "👁️", aiFeature: "Image processing", topics: 40, trial: true },
-          { name: "NLP", icon: "💬", aiFeature: "Language models", topics: 42, trial: true },
-          { name: "Software Engineering", icon: "⚙️", aiFeature: "AI-assisted coding", topics: 50, trial: true }
+          { name: "Machine Learning", icon: "🤖", aiFeature: "Deep Learning projects", topics: 45, lessons: 90, trial: true },
+          { name: "Computer Vision", icon: "👁️", aiFeature: "Image processing", topics: 40, lessons: 80, trial: true },
+          { name: "NLP", icon: "💬", aiFeature: "Language models", topics: 42, lessons: 84, trial: true },
+          { name: "Software Engineering", icon: "⚙️", aiFeature: "AI-assisted coding", topics: 50, lessons: 100, trial: true }
         ]
       },
       slt: {
         name: "Science Laboratory Technology",
         courses: [
-          { name: "Analytical Chemistry", icon: "🔬", aiFeature: "AI data analysis", topics: 38, trial: true },
-          { name: "Microbiology", icon: "🦠", aiFeature: "Predictive modeling", topics: 35, trial: true },
-          { name: "Biotechnology", icon: "🧬", aiFeature: "Lab automation", topics: 40, trial: true },
-          { name: "Pharmacology", icon: "💊", aiFeature: "Drug discovery AI", topics: 36, trial: true }
+          { name: "Analytical Chemistry", icon: "🔬", aiFeature: "AI data analysis", topics: 38, lessons: 76, trial: true },
+          { name: "Microbiology", icon: "🦠", aiFeature: "Predictive modeling", topics: 35, lessons: 70, trial: true },
+          { name: "Biotechnology", icon: "🧬", aiFeature: "Lab automation", topics: 40, lessons: 80, trial: true },
+          { name: "Pharmacology", icon: "💊", aiFeature: "Drug discovery AI", topics: 36, lessons: 72, trial: true }
         ]
       },
       medical: {
         name: "Medicine & Health",
         courses: [
-          { name: "Clinical Diagnostics", icon: "🏥", aiFeature: "AI diagnostics", topics: 48, trial: true },
-          { name: "Pharmacology", icon: "💉", aiFeature: "Drug interaction AI", topics: 42, trial: true },
-          { name: "Medical Imaging", icon: "📷", aiFeature: "Image analysis", topics: 40, trial: true },
-          { name: "Public Health", icon: "🩺", aiFeature: "Epidemiology modeling", topics: 35, trial: true }
+          { name: "Clinical Diagnostics", icon: "🏥", aiFeature: "AI diagnostics", topics: 48, lessons: 96, trial: true },
+          { name: "Pharmacology", icon: "💉", aiFeature: "Drug interaction AI", topics: 42, lessons: 84, trial: true },
+          { name: "Medical Imaging", icon: "📷", aiFeature: "Image analysis", topics: 40, lessons: 80, trial: true },
+          { name: "Public Health", icon: "🩺", aiFeature: "Epidemiology modeling", topics: 35, lessons: 70, trial: true }
         ]
       },
       business: {
         name: "Business & Management",
         courses: [
-          { name: "Data Analytics", icon: "📊", aiFeature: "Predictive analytics", topics: 38, trial: true },
-          { name: "Digital Marketing", icon: "📱", aiFeature: "AI marketing tools", topics: 35, trial: true },
-          { name: "Financial Technology", icon: "💳", aiFeature: "Algorithmic trading", topics: 40, trial: true },
-          { name: "Entrepreneurship", icon: "🚀", aiFeature: "Business AI tools", topics: 32, trial: true }
+          { name: "Data Analytics", icon: "📊", aiFeature: "Predictive analytics", topics: 38, lessons: 76, trial: true },
+          { name: "Digital Marketing", icon: "📱", aiFeature: "AI marketing tools", topics: 35, lessons: 70, trial: true },
+          { name: "Financial Technology", icon: "💳", aiFeature: "Algorithmic trading", topics: 40, lessons: 80, trial: true },
+          { name: "Entrepreneurship", icon: "🚀", aiFeature: "Business AI tools", topics: 32, lessons: 64, trial: true }
         ]
       },
       agriculture: {
         name: "Agriculture & Environment",
         courses: [
-          { name: "Precision Farming", icon: "🌱", aiFeature: "AI crop monitoring", topics: 36, trial: true },
-          { name: "Climate Modeling", icon: "🌦️", aiFeature: "Weather prediction", topics: 38, trial: true },
-          { name: "Soil Science", icon: "🏞️", aiFeature: "Resource management", topics: 34, trial: true },
-          { name: "Environmental Tech", icon: "♻️", aiFeature: "Sustainability AI", topics: 35, trial: true }
+          { name: "Precision Farming", icon: "🌱", aiFeature: "AI crop monitoring", topics: 36, lessons: 72, trial: true },
+          { name: "Climate Modeling", icon: "🌦️", aiFeature: "Weather prediction", topics: 38, lessons: 76, trial: true },
+          { name: "Soil Science", icon: "🏞️", aiFeature: "Resource management", topics: 34, lessons: 68, trial: true },
+          { name: "Environmental Tech", icon: "♻️", aiFeature: "Sustainability AI", topics: 35, lessons: 70, trial: true }
         ]
       }
     }
@@ -157,7 +296,7 @@ const EduSpark = () => {
   const [enrolledCourses, setEnrolledCourses] = useState({});
   const [userProgress, setUserProgress] = useState({});
   const [showCertificate, setShowCertificate] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedPlan, setSelectedPlan] = useState({});
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -455,9 +594,29 @@ const EduSpark = () => {
               <p className="text-2xl text-gray-700 mb-4 font-medium">
                 From Primary School to University - AI-powered education for every level
               </p>
-              <p className="text-3xl font-bold text-green-600 mb-10 animate-pulse">
-                🎉 Only $5 per module + FREE Trials Available!
-              </p>
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl p-8 mb-8 shadow-2xl max-w-4xl mx-auto">
+                <p className="text-3xl font-bold mb-4 animate-pulse">
+                  🎉 Flexible Learning Plans for Everyone!
+                </p>
+                <div className="grid md:grid-cols-4 gap-4 text-center">
+                  <div className="bg-white/20 rounded-xl p-4">
+                    <div className="text-4xl font-bold mb-1">FREE</div>
+                    <div className="text-sm">Trial Access</div>
+                  </div>
+                  <div className="bg-white/20 rounded-xl p-4">
+                    <div className="text-4xl font-bold mb-1">$1</div>
+                    <div className="text-sm">Basic Plan</div>
+                  </div>
+                  <div className="bg-white/20 rounded-xl p-4">
+                    <div className="text-4xl font-bold mb-1">$3-$5</div>
+                    <div className="text-sm">Standard Plan</div>
+                  </div>
+                  <div className="bg-white/20 rounded-xl p-4">
+                    <div className="text-4xl font-bold mb-1">$20</div>
+                    <div className="text-sm">Premium Plan</div>
+                  </div>
+                </div>
+              </div>
               <div className="flex flex-wrap justify-center gap-4">
                 <button onClick={() => setActiveTab('courses')} className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-10 py-4 rounded-xl font-semibold text-lg hover:shadow-2xl transition-all transform hover:scale-105">
                   Explore Courses
@@ -471,8 +630,8 @@ const EduSpark = () => {
             {/* Features */}
             <div className="grid md:grid-cols-4 gap-6 mb-16">
               {[
-                { icon: BookOpen, title: "$5 Per Module", desc: "Affordable quality education", color: "purple" },
-                { icon: Play, title: "Free Trials", desc: "Try before you enroll", color: "green" },
+                { icon: Play, title: "Free Trials", desc: "Try courses before subscribing", color: "green" },
+                { icon: BookOpen, title: "Flexible Plans", desc: "$1, $3, $5, $20 options", color: "purple" },
                 { icon: Brain, title: "Smart AI Tutor", desc: "Get instant help 24/7", color: "blue" },
                 { icon: CreditCard, title: "Easy Payment", desc: "Secure checkout", color: "pink" }
               ].map((feature, idx) => (
@@ -514,7 +673,7 @@ const EduSpark = () => {
                     <h4 className="font-bold text-2xl mb-2">{level.name}</h4>
                     <p className="text-sm text-gray-600 mb-4">{level.levels}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-green-600 font-bold text-xl">{level.price}/module</span>
+                      <span className="text-purple-600 font-bold text-sm">Flexible plans</span>
                       <div className="flex items-center text-purple-600 font-semibold">
                         Explore <ChevronRight className="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform" />
                       </div>
@@ -601,16 +760,12 @@ const EduSpark = () => {
               <div className="mb-12">
                 <div className="flex items-center gap-3 mb-6">
                   <h3 className="text-3xl font-bold">{COURSES_DATA.primary.name}</h3>
-                  <span className="bg-green-100 text-green-800 px-4 py-1.5 rounded-full text-sm font-semibold">
-                    {COURSES_DATA.primary.price}/module
-                  </span>
-                  <span className="bg-blue-100 text-blue-800 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-1">
-                    <Play className="w-3 h-3" />
-                    Free Trial
+                  <span className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 px-4 py-1.5 rounded-full text-sm font-semibold">
+                    Flexible Plans
                   </span>
                 </div>
                 <div className="grid md:grid-cols-3 gap-6">
-                  {COURSES_DATA.primary.subjects.map(course => renderCourseCard(course, 'primary', COURSES_DATA.primary.price, COURSES_DATA.primary.priceValue))}
+                  {COURSES_DATA.primary.subjects.map(course => renderCourseCard(course, 'primary', COURSES_DATA.primary))}
                 </div>
               </div>
             )}
@@ -620,16 +775,12 @@ const EduSpark = () => {
               <div className="mb-12">
                 <div className="flex items-center gap-3 mb-6">
                   <h3 className="text-3xl font-bold">{COURSES_DATA.jss.name}</h3>
-                  <span className="bg-blue-100 text-blue-800 px-4 py-1.5 rounded-full text-sm font-semibold">
-                    {COURSES_DATA.jss.price}/module
-                  </span>
-                  <span className="bg-green-100 text-green-800 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-1">
-                    <Play className="w-3 h-3" />
-                    Free Trial
+                  <span className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 px-4 py-1.5 rounded-full text-sm font-semibold">
+                    Flexible Plans
                   </span>
                 </div>
                 <div className="grid md:grid-cols-3 gap-6">
-                  {COURSES_DATA.jss.subjects.map(course => renderCourseCard(course, 'jss', COURSES_DATA.jss.price, COURSES_DATA.jss.priceValue))}
+                  {COURSES_DATA.jss.subjects.map(course => renderCourseCard(course, 'jss', COURSES_DATA.jss))}
                 </div>
               </div>
             )}
@@ -639,12 +790,8 @@ const EduSpark = () => {
               <div className="mb-12">
                 <div className="flex items-center gap-3 mb-6">
                   <h3 className="text-3xl font-bold">{COURSES_DATA.sss.name}</h3>
-                  <span className="bg-purple-100 text-purple-800 px-4 py-1.5 rounded-full text-sm font-semibold">
-                    {COURSES_DATA.sss.price}/module
-                  </span>
-                  <span className="bg-green-100 text-green-800 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-1">
-                    <Play className="w-3 h-3" />
-                    Free Trial
+                  <span className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 px-4 py-1.5 rounded-full text-sm font-semibold">
+                    Flexible Plans
                   </span>
                 </div>
                 
@@ -677,7 +824,7 @@ const EduSpark = () => {
 
                 <div className="grid md:grid-cols-3 gap-6">
                   {(selectedStream ? COURSES_DATA.sss.streams[selectedStream] : Object.values(COURSES_DATA.sss.streams).flat()).map(course => 
-                    renderCourseCard(course, 'sss', COURSES_DATA.sss.price, COURSES_DATA.sss.priceValue)
+                    renderCourseCard(course, 'sss', COURSES_DATA.sss)
                   )}
                 </div>
               </div>
@@ -688,16 +835,12 @@ const EduSpark = () => {
               <div className="mb-12">
                 <div className="flex items-center gap-3 mb-6">
                   <h3 className="text-3xl font-bold">{COURSES_DATA.preuni.name}</h3>
-                  <span className="bg-orange-100 text-orange-800 px-4 py-1.5 rounded-full text-sm font-semibold">
-                    {COURSES_DATA.preuni.price}/module
-                  </span>
-                  <span className="bg-green-100 text-green-800 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-1">
-                    <Play className="w-3 h-3" />
-                    Free Trial
+                  <span className="bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 px-4 py-1.5 rounded-full text-sm font-semibold">
+                    Up to $20 Premium
                   </span>
                 </div>
                 <div className="grid md:grid-cols-3 gap-6">
-                  {COURSES_DATA.preuni.subjects.map(course => renderCourseCard(course, 'preuni', COURSES_DATA.preuni.price, COURSES_DATA.preuni.priceValue))}
+                  {COURSES_DATA.preuni.subjects.map(course => renderCourseCard(course, 'preuni', COURSES_DATA.preuni))}
                 </div>
               </div>
             )}
@@ -707,12 +850,8 @@ const EduSpark = () => {
               <div>
                 <div className="flex items-center gap-3 mb-6">
                   <h3 className="text-3xl font-bold">{COURSES_DATA.university.name}</h3>
-                  <span className="bg-red-100 text-red-800 px-4 py-1.5 rounded-full text-sm font-semibold">
-                    {COURSES_DATA.university.price}/module
-                  </span>
-                  <span className="bg-green-100 text-green-800 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-1">
-                    <Play className="w-3 h-3" />
-                    Free Trial
+                  <span className="bg-gradient-to-r from-red-100 to-rose-100 text-red-800 px-4 py-1.5 rounded-full text-sm font-semibold">
+                    Up to $20 Premium
                   </span>
                 </div>
                 
@@ -723,7 +862,7 @@ const EduSpark = () => {
                       {faculty.name}
                     </h4>
                     <div className="grid md:grid-cols-3 gap-6">
-                      {faculty.courses.map(course => renderCourseCard(course, 'university', COURSES_DATA.university.price, COURSES_DATA.university.priceValue))}
+                      {faculty.courses.map(course => renderCourseCard(course, 'university', COURSES_DATA.university))}
                     </div>
                   </div>
                 ))}
@@ -1103,11 +1242,11 @@ const EduSpark = () => {
               <ul className="space-y-3 text-sm text-gray-400">
                 <li className="flex items-center gap-2">
                   <span className="text-purple-400">📧</span>
-                  support@eduspark.ng
+                  Smartxpress74@gmail.com
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-blue-400">📱</span>
-                  +234 800 EDU SPARK
+                  +234 902 077 9297
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-green-400">📍</span>
