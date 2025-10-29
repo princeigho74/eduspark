@@ -122,6 +122,21 @@ import { BookOpen, MessageCircle, Sparkles, Search, Menu, X, ChevronRight, Gradu
 
 const PAYSTACK_PUBLIC_KEY = 'pk_test_xxxxxxxxxxxxx';
 const LOGO_URL = "https://i.imgur.com/LsQEpvp.png";
+const HERO_IMAGE_URL = "https://i.imgur.com/XN6eC0i.png";
+const BACKGROUND_VIDEO_URL = "https://assets.grok.com/users/7ef6dcfd-8def-44f9-a7d5-b67c48e9fd6e/generated/a42d727a-8ce5-4052-a79d-6b2843f4df43/generated_video.mp4";
+
+// Alumni and Success Stories Images
+const ALUMNI_IMAGES = [
+  { id: 1, url: "https://i.imgur.com/GDODK4l.png", name: "Sarah Johnson", role: "Software Engineer", course: "Computer Science", year: "2023" },
+  { id: 2, url: "https://i.imgur.com/qqkwVbM.png", name: "Michael Chen", role: "Data Scientist", course: "Machine Learning", year: "2023" },
+  { id: 3, url: "https://i.imgur.com/gF3mzDv.png", name: "Amina Ibrahim", role: "Medical Lab Scientist", course: "Science Lab Tech", year: "2022" }
+];
+
+const SUCCESS_GALLERY = [
+  { id: 1, url: "https://i.imgur.com/MAHhM2i.png", title: "Graduation Ceremony 2023", category: "Events" },
+  { id: 2, url: "https://i.imgur.com/sRd0Ate.png", title: "Student Innovation Lab", category: "Facilities" },
+  { id: 3, url: "https://i.imgur.com/MAHhM2i.png", title: "Award Winners", category: "Achievements" }
+];
 
 const COURSES_DATA = {
   primary: {
@@ -268,6 +283,23 @@ const COURSES_DATA = {
         ]
       }
     }
+  },
+  professional: {
+    name: "Professional Courses",
+    levels: "Career Development & Certification",
+    plans: {
+      trial: { name: "Free Trial", price: "$0", priceValue: 0, access: "3 lessons" },
+      basic: { name: "Basic", price: "$10", priceValue: 10, access: "20 lessons" },
+      standard: { name: "Standard", price: "$20", priceValue: 20, access: "Full course + Certificate" },
+      premium: { name: "Premium", price: "$50", priceValue: 50, access: "Full + AI tutoring + Career support" }
+    },
+    courses: [
+      { name: "Health, Safety & Environment (HSE)", icon: "🦺", aiFeature: "AI risk assessment & safety protocols", topics: 50, lessons: 100, trial: true },
+      { name: "Industrial & Conservation Safety", icon: "🏭", aiFeature: "AI-powered safety management systems", topics: 45, lessons: 90, trial: true },
+      { name: "Fire Safety & Prevention", icon: "🚒", aiFeature: "AI fire hazard detection & emergency response", topics: 40, lessons: 80, trial: true },
+      { name: "Science Laboratory Technology", icon: "🔬", aiFeature: "Advanced lab techniques & AI data analysis", topics: 55, lessons: 110, trial: true },
+      { name: "Artificial Intelligence Professional", icon: "🤖", aiFeature: "Enterprise AI solutions & deployment", topics: 60, lessons: 120, trial: true }
+    ]
   }
 };
 
@@ -505,9 +537,22 @@ const EduSpark = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 relative">
+      {/* Animated Background Video */}
+      <div className="fixed inset-0 -z-10 opacity-5">
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+          className="w-full h-full object-cover"
+        >
+          <source src={BACKGROUND_VIDEO_URL} type="video/mp4" />
+        </video>
+      </div>
+      
       {/* Header */}
-      <header className="bg-white shadow-md sticky top-0 z-40 border-b-2 border-purple-100">
+      <header className="bg-white/95 backdrop-blur-md shadow-md sticky top-0 z-40 border-b-2 border-purple-100">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -525,7 +570,7 @@ const EduSpark = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  EduSpark
+                  EduSpark Online Academy
                 </h1>
                 <p className="text-xs text-gray-600 font-medium">Empowering Minds Through AI Learning</p>
               </div>
@@ -572,58 +617,88 @@ const EduSpark = () => {
         {activeTab === 'home' && (
           <>
             {/* Hero Section */}
-            <div className="text-center mb-16 relative">
+            <div className="relative mb-16">
               <div className="absolute inset-0 bg-gradient-to-r from-purple-200 via-blue-200 to-pink-200 blur-3xl opacity-30 -z-10"></div>
-              <div className="flex justify-center mb-8">
-                <img 
-                  src={LOGO_URL}
-                  alt="EduSpark Logo"
-                  className="w-48 h-48 rounded-3xl object-contain shadow-2xl bg-white p-6 border-4 border-purple-100"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
-                />
-                <div className="w-48 h-48 rounded-3xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-2xl border-4 border-purple-100" style={{ display: 'none' }}>
-                  <Sparkles className="w-24 h-24 text-white" />
+              
+              {/* Hero Content with Image */}
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                {/* Left Side - Text Content */}
+                <div className="text-center md:text-left">
+                  <div className="flex justify-center md:justify-start mb-6">
+                    <img 
+                      src={LOGO_URL}
+                      alt="EduSpark Logo"
+                      className="w-32 h-32 rounded-2xl object-contain shadow-2xl bg-white p-4 border-4 border-purple-100"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-2xl border-4 border-purple-100" style={{ display: 'none' }}>
+                      <Sparkles className="w-16 h-16 text-white" />
+                    </div>
+                  </div>
+                  
+                  <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-blue-600 to-pink-600 bg-clip-text text-transparent leading-tight">
+                    Learn Smarter with AI
+                  </h2>
+                  <p className="text-xl md:text-2xl text-gray-700 mb-4 font-medium">
+                    From Primary School to University & Professional Certifications
+                  </p>
+                  <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl p-6 mb-8 shadow-2xl">
+                    <p className="text-2xl font-bold mb-4 animate-pulse">
+                      🎉 Flexible Learning Plans for Everyone!
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                      <div className="bg-white/20 rounded-xl p-3">
+                        <div className="text-3xl font-bold mb-1">FREE</div>
+                        <div className="text-xs">Trial Access</div>
+                      </div>
+                      <div className="bg-white/20 rounded-xl p-3">
+                        <div className="text-3xl font-bold mb-1">$1</div>
+                        <div className="text-xs">Basic Plan</div>
+                      </div>
+                      <div className="bg-white/20 rounded-xl p-3">
+                        <div className="text-3xl font-bold mb-1">$3-$20</div>
+                        <div className="text-xs">Standard Plan</div>
+                      </div>
+                      <div className="bg-white/20 rounded-xl p-3">
+                        <div className="text-3xl font-bold mb-1">$50</div>
+                        <div className="text-xs">Pro Premium</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                    <button onClick={() => setActiveTab('courses')} className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-10 py-4 rounded-xl font-semibold text-lg hover:shadow-2xl transition-all transform hover:scale-105">
+                      Explore Courses
+                    </button>
+                    <button onClick={() => setChatOpen(true)} className="bg-white text-purple-600 px-10 py-4 rounded-xl font-semibold text-lg border-3 border-purple-600 hover:bg-purple-50 transition-all transform hover:scale-105 shadow-lg">
+                      Try AI Tutor
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <h2 className="text-6xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-blue-600 to-pink-600 bg-clip-text text-transparent leading-tight">
-                Learn Smarter with AI
-              </h2>
-              <p className="text-2xl text-gray-700 mb-4 font-medium">
-                From Primary School to University - AI-powered education for every level
-              </p>
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl p-8 mb-8 shadow-2xl max-w-4xl mx-auto">
-                <p className="text-3xl font-bold mb-4 animate-pulse">
-                  🎉 Flexible Learning Plans for Everyone!
-                </p>
-                <div className="grid md:grid-cols-4 gap-4 text-center">
-                  <div className="bg-white/20 rounded-xl p-4">
-                    <div className="text-4xl font-bold mb-1">FREE</div>
-                    <div className="text-sm">Trial Access</div>
-                  </div>
-                  <div className="bg-white/20 rounded-xl p-4">
-                    <div className="text-4xl font-bold mb-1">$1</div>
-                    <div className="text-sm">Basic Plan</div>
-                  </div>
-                  <div className="bg-white/20 rounded-xl p-4">
-                    <div className="text-4xl font-bold mb-1">$3-$5</div>
-                    <div className="text-sm">Standard Plan</div>
-                  </div>
-                  <div className="bg-white/20 rounded-xl p-4">
-                    <div className="text-4xl font-bold mb-1">$20</div>
-                    <div className="text-sm">Premium Plan</div>
+
+                {/* Right Side - Hero Image */}
+                <div className="hidden md:flex justify-center items-center">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-400 blur-2xl opacity-30 animate-pulse"></div>
+                    <img 
+                      src={HERO_IMAGE_URL}
+                      alt="EduSpark Learning"
+                      className="relative w-full max-w-md rounded-3xl shadow-2xl border-4 border-white transform hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="relative w-full max-w-md h-96 bg-gradient-to-br from-purple-600 via-blue-600 to-pink-600 rounded-3xl shadow-2xl flex items-center justify-center border-4 border-white" style={{ display: 'none' }}>
+                      <div className="text-white text-center p-8">
+                        <GraduationCap className="w-32 h-32 mx-auto mb-4" />
+                        <p className="text-2xl font-bold">EduSpark Online Academy</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="flex flex-wrap justify-center gap-4">
-                <button onClick={() => setActiveTab('courses')} className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-10 py-4 rounded-xl font-semibold text-lg hover:shadow-2xl transition-all transform hover:scale-105">
-                  Explore Courses
-                </button>
-                <button onClick={() => setChatOpen(true)} className="bg-white text-purple-600 px-10 py-4 rounded-xl font-semibold text-lg border-3 border-purple-600 hover:bg-purple-50 transition-all transform hover:scale-105 shadow-lg">
-                  Try AI Tutor
-                </button>
               </div>
             </div>
 
@@ -720,7 +795,7 @@ const EduSpark = () => {
                 />
                 <div>
                   <h2 className="text-4xl font-bold">Browse Courses</h2>
-                  <p className="text-gray-600 text-lg">All courses: $5 per module • Free trials available</p>
+                  <p className="text-gray-600 text-lg">Choose from flexible subscription plans • Free trials available</p>
                 </div>
               </div>
               <div className="flex gap-4 mb-6">
@@ -847,7 +922,7 @@ const EduSpark = () => {
 
             {/* University */}
             {(!selectedLevel || selectedLevel === 'university') && (
-              <div>
+              <div className="mb-12">
                 <div className="flex items-center gap-3 mb-6">
                   <h3 className="text-3xl font-bold">{COURSES_DATA.university.name}</h3>
                   <span className="bg-gradient-to-r from-red-100 to-rose-100 text-red-800 px-4 py-1.5 rounded-full text-sm font-semibold">
@@ -866,6 +941,91 @@ const EduSpark = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Professional Courses */}
+            {(!selectedLevel || selectedLevel === 'professional') && (
+              <div className="mb-12">
+                <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl p-8 mb-6 shadow-2xl">
+                  <h3 className="text-3xl font-bold mb-3 flex items-center gap-3">
+                    <Award className="w-10 h-10" />
+                    {COURSES_DATA.professional.name}
+                  </h3>
+                  <p className="text-lg opacity-90 mb-4">{COURSES_DATA.professional.levels}</p>
+                  <p className="text-xl font-semibold">🎓 Apply for Professional Certification Courses!</p>
+                </div>
+                
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {COURSES_DATA.professional.courses.map(course => renderCourseCard(course, 'professional', COURSES_DATA.professional))}
+                </div>
+                
+                <div className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-8">
+                  <h4 className="font-bold text-2xl mb-6 text-blue-900 flex items-center gap-3">
+                    <CheckCircle className="w-8 h-8" />
+                    Why Choose Professional Courses?
+                  </h4>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Award className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h5 className="font-bold text-gray-800 mb-1">Industry Certifications</h5>
+                          <p className="text-sm text-gray-600">Recognized credentials for career advancement</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Brain className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h5 className="font-bold text-gray-800 mb-1">AI-Powered Learning</h5>
+                          <p className="text-sm text-gray-600">Advanced tools and real-world case studies</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Users className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h5 className="font-bold text-gray-800 mb-1">Expert Instructors</h5>
+                          <p className="text-sm text-gray-600">Learn from industry professionals</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Target className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h5 className="font-bold text-gray-800 mb-1">Practical Training</h5>
+                          <p className="text-sm text-gray-600">Hands-on experience and simulations</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-pink-600 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Trophy className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h5 className="font-bold text-gray-800 mb-1">Career Support</h5>
+                          <p className="text-sm text-gray-600">Job placement assistance (Premium plan)</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Clock className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h5 className="font-bold text-gray-800 mb-1">Flexible Learning</h5>
+                          <p className="text-sm text-gray-600">Study at your own pace, anytime</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </>
@@ -1191,7 +1351,7 @@ const EduSpark = () => {
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center" style={{ display: 'none' }}>
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
-                <span className="font-bold text-2xl">EduSpark</span>
+                <span className="font-bold text-2xl">EduSpark Online Academy</span>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed mb-4">
                 Empowering minds through AI-powered learning from Primary to University level.
@@ -1212,7 +1372,7 @@ const EduSpark = () => {
             </div>
 
             <div>
-              <h4 className="font-bold text-lg mb-4 text-purple-400">Learning Levels</h4>
+              <h4 className="font-bold text-lg mb-4">Learning Levels</h4>
               <ul className="space-y-3 text-sm text-gray-400">
                 <li className="flex items-center gap-2">
                   <GraduationCap className="w-4 h-4 text-purple-400" />
@@ -1233,6 +1393,10 @@ const EduSpark = () => {
                 <li className="flex items-center gap-2">
                   <GraduationCap className="w-4 h-4 text-orange-400" />
                   University & Postgraduate
+                </li>
+                <li className="flex items-center gap-2">
+                  <Award className="w-4 h-4 text-red-400" />
+                  Professional Courses (HSE, Safety)
                 </li>
               </ul>
             </div>
@@ -1283,7 +1447,7 @@ const EduSpark = () => {
               </div>
             </div>
             <p className="text-center text-xs text-gray-500 mt-4">
-              🎓 Quality Education • 💰 $5 Per Module • 🎁 Free Trials • 🤖 AI-Powered Learning
+              🎓 Quality Education • 💰 Flexible Plans (FREE, $1, $3, $5, $20) • 🎁 Free Trials • 🤖 AI-Powered Learning
             </p>
           </div>
         </div>
