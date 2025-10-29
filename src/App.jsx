@@ -2,11 +2,13 @@ const renderCourseCard = (course, level, levelData) => {
     const isEnrolled = enrolledCourses[course.name];
     const hasTrial = trialCourses[course.name];
     const progress = userProgress[course.name] || 0;
-    const plans = levelData.plans;
-    const currentPlan = selectedPlan[course.name] || 'trial';
 
     return (
-      <div key={course.name} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all transform hover:-translate-y-1 border border-gray-100">
+      <div 
+        key={course.name} 
+        onClick={() => handleCourseClick(course, levelData)}
+        className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all transform hover:-translate-y-1 border border-gray-100 cursor-pointer"
+      >
         <div className="text-4xl mb-3">{course.icon}</div>
         <h3 className="font-bold text-lg mb-2 text-gray-800">{course.name}</h3>
         <p className="text-sm text-gray-600 mb-3">{course.aiFeature}</p>
@@ -20,32 +22,6 @@ const renderCourseCard = (course, level, levelData) => {
             {course.topics} topics
           </span>
         </div>
-
-        {/* Subscription Plans */}
-        {!isEnrolled && (
-          <div className="mb-4 space-y-2">
-            <p className="text-xs font-semibold text-gray-700 mb-2">Choose a plan:</p>
-            {Object.entries(plans).map(([key, plan]) => (
-              <button
-                key={key}
-                onClick={() => setSelectedPlan(prev => ({ ...prev, [course.name]: key }))}
-                className={`w-full p-3 rounded-lg border-2 transition-all text-left ${
-                  currentPlan === key 
-                    ? 'border-purple-600 bg-purple-50' 
-                    : 'border-gray-200 hover:border-purple-300'
-                }`}
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="font-bold text-sm">{plan.name}</div>
-                    <div className="text-xs text-gray-600">{plan.access}</div>
-                  </div>
-                  <div className="text-lg font-bold text-purple-600">{plan.price}</div>
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
 
         {isEnrolled && (
           <div className="mb-4">
@@ -62,57 +38,28 @@ const renderCourseCard = (course, level, levelData) => {
           </div>
         )}
         
-        {!isEnrolled && (
-          <button 
-            onClick={() => {
-              const plan = plans[currentPlan];
-              if (plan.priceValue === 0) {
-                handleFreeTrial(course.name);
-              } else {
-                handlePayment(course.name, plan.priceValue);
-              }
-            }}
-            className={`w-full py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-2 shadow-md ${
-              plans[currentPlan].priceValue === 0
-                ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600'
-                : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700'
-            }`}
-          >
-            {plans[currentPlan].priceValue === 0 ? (
-              <>
-                <Play className="w-4 h-4" />
-                Start Free Trial
-              </>
-            ) : (
-              <>
-                <CreditCard className="w-4 h-4" />
-                Subscribe - {plans[currentPlan].price}
-              </>
-            )}
-          </button>
-        )}
-
-        {isEnrolled && (
-          <button 
-            onClick={() => simulateProgress(course.name)}
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-all flex items-center justify-center gap-2 shadow-md"
-          >
-            <Play className="w-4 h-4" />
-            Continue Learning
-          </button>
-        )}
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            handleCourseClick(course, levelData);
+          }}
+          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all flex items-center justify-center gap-2 shadow-md"
+        >
+          <Eye className="w-4 h-4" />
+          View Details
+        </button>
         
         {hasTrial && !isEnrolled && (
           <div className="mt-2 text-xs text-center text-green-600 font-medium flex items-center justify-center gap-1">
             <CheckCircle className="w-3 h-3" />
-            Trial Active - 3 Lessons Available
+            Trial Active
           </div>
         )}
 
         {isEnrolled && (
           <div className="mt-2 text-xs text-center text-blue-600 font-medium flex items-center justify-center gap-1">
             <Trophy className="w-3 h-3" />
-            Enrolled - Full Access
+            Enrolled
           </div>
         )}
       </div>
@@ -133,10 +80,13 @@ const ALUMNI_IMAGES = [
 ];
 
 const SUCCESS_GALLERY = [
-  { id: 1, url: "https://i.imgur.com/MAHhM2i.png", title: "Graduation Ceremony 2023", category: "Events" },
-  { id: 2, url: "https://i.imgur.com/sRd0Ate.png", title: "Student Innovation Lab", category: "Facilities" },
-  { id: 3, url: "https://i.imgur.com/MAHhM2i.png", title: "Award Winners", category: "Achievements" }
+  { id: 1, url: "https://i.imgur.com/MAHhM2i.png", title: "Graduation Ceremony 2023", category: "Events", type: "image" },
+  { id: 2, url: "https://i.imgur.com/sRd0Ate.png", title: "Student Innovation Lab", category: "Facilities", type: "image" },
+  { id: 3, url: "https://i.imgur.com/MAHhM2i.png", title: "Award Winners", category: "Achievements", type: "image" },
+  { id: 4, url: "https://i.imgur.com/Sqq7ym2.mp4", title: "Campus Life & Activities", category: "Events", type: "video", thumbnail: "https://i.imgur.com/Sqq7ym2.png" }
 ];
+
+const SIDE_LOGO_URL = "https://i.imgur.com/sRd0Ate.png";
 
 const COURSES_DATA = {
   primary: {
@@ -340,6 +290,7 @@ const EduSpark = () => {
   const [showCertificate, setShowCertificate] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedGalleryCategory, setSelectedGalleryCategory] = useState('all');
+  const [showCourseModal, setShowCourseModal] = useState(false);
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -452,9 +403,15 @@ const EduSpark = () => {
     }, 800);
   };
 
+  const handleCourseClick = (course, levelData) => {
+    setSelectedCourse({ ...course, levelData });
+    setShowCourseModal(true);
+  };
+
   const handleFreeTrial = (courseName) => {
     setTrialCourses(prev => ({ ...prev, [courseName]: true }));
     setUserProgress(prev => ({ ...prev, [courseName]: 15 }));
+    setShowCourseModal(false);
     alert(`🎉 Free trial activated for ${courseName}!\n\nYou now have access to:\n• First 3 lessons\n• AI tutor support\n• Interactive exercises\n• 15% course preview\n\nEnjoy your trial!`);
   };
 
@@ -487,6 +444,7 @@ const EduSpark = () => {
       callback: function(response) {
         setEnrolledCourses(prev => ({ ...prev, [courseName]: true }));
         setUserProgress(prev => ({ ...prev, [courseName]: 0 }));
+        setShowCourseModal(false);
         alert('✅ Payment successful!\n\nReference: ' + response.reference + '\n\nYou now have full access to ' + courseName + '!');
       },
       onClose: function() {
@@ -499,6 +457,7 @@ const EduSpark = () => {
     } else {
       setEnrolledCourses(prev => ({ ...prev, [courseName]: true }));
       setUserProgress(prev => ({ ...prev, [courseName]: 0 }));
+      setShowCourseModal(false);
       alert('✅ Enrollment successful!\n\nWelcome to ' + courseName + '!\n\nYou now have full access to all course materials.');
     }
   };
@@ -613,17 +572,28 @@ const EduSpark = () => {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img 
-                src={LOGO_URL}
-                alt="EduSpark Logo"
-                className="w-14 h-14 rounded-xl object-contain bg-gradient-to-br from-purple-100 to-blue-100 p-2 shadow-lg"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'block';
-                }}
-              />
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-lg" style={{ display: 'none' }}>
-                <Sparkles className="w-8 h-8 text-white" />
+              <div className="flex items-center gap-2">
+                <img 
+                  src={LOGO_URL}
+                  alt="EduSpark Logo"
+                  className="w-14 h-14 rounded-xl object-contain bg-gradient-to-br from-purple-100 to-blue-100 p-2 shadow-lg"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'block';
+                  }}
+                />
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-lg" style={{ display: 'none' }}>
+                  <Sparkles className="w-8 h-8 text-white" />
+                </div>
+                
+                <img 
+                  src={SIDE_LOGO_URL}
+                  alt="EduSpark Badge"
+                  className="w-14 h-14 rounded-xl object-contain bg-gradient-to-br from-blue-100 to-purple-100 p-2 shadow-lg"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
@@ -1254,18 +1224,37 @@ const EduSpark = () => {
                 .map((item) => (
                   <div key={item.id} className="group relative bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-all">
                     <div className="relative h-80">
-                      <img 
-                        src={item.url}
-                        alt={item.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'flex';
-                        }}
-                      />
-                      <div className="w-full h-full bg-gradient-to-br from-pink-600 to-purple-600 flex items-center justify-center" style={{ display: 'none' }}>
-                        <Star className="w-32 h-32 text-white opacity-50" />
-                      </div>
+                      {item.type === 'video' ? (
+                        <>
+                          <video 
+                            controls
+                            poster={item.thumbnail}
+                            className="w-full h-full object-cover"
+                          >
+                            <source src={item.url} type="video/mp4" />
+                            Your browser does not support the video tag.
+                          </video>
+                          <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                            <Play className="w-3 h-3" />
+                            VIDEO
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <img 
+                            src={item.url}
+                            alt={item.title}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                          <div className="w-full h-full bg-gradient-to-br from-pink-600 to-purple-600 flex items-center justify-center" style={{ display: 'none' }}>
+                            <Star className="w-32 h-32 text-white opacity-50" />
+                          </div>
+                        </>
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="absolute bottom-0 left-0 right-0 p-6">
                           <h3 className="text-white font-bold text-xl mb-2">{item.title}</h3>
@@ -1280,7 +1269,7 @@ const EduSpark = () => {
             </div>
 
             {/* Gallery Stats */}
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="grid md:grid-cols-4 gap-6 mb-12">
               <div className="bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl p-8 text-white text-center shadow-xl">
                 <Star className="w-12 h-12 mx-auto mb-3" />
                 <div className="text-4xl font-bold mb-2">500+</div>
@@ -1295,6 +1284,11 @@ const EduSpark = () => {
                 <Trophy className="w-12 h-12 mx-auto mb-3" />
                 <div className="text-4xl font-bold mb-2">50+</div>
                 <div className="text-sm">Partner Institutions</div>
+              </div>
+              <div className="bg-gradient-to-br from-red-500 to-orange-500 rounded-xl p-8 text-white text-center shadow-xl">
+                <Play className="w-12 h-12 mx-auto mb-3" />
+                <div className="text-4xl font-bold mb-2">100+</div>
+                <div className="text-sm">Videos & Media</div>
               </div>
             </div>
 
@@ -1560,6 +1554,182 @@ const EduSpark = () => {
         )}
       </main>
 
+      {/* Course Details Modal */}
+      {showCourseModal && selectedCourse && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowCourseModal(false)}>
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-8 rounded-t-2xl relative">
+              <button 
+                onClick={() => setShowCourseModal(false)}
+                className="absolute top-4 right-4 w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              <div className="flex items-start gap-4">
+                <div className="text-6xl">{selectedCourse.icon}</div>
+                <div className="flex-1">
+                  <h2 className="text-3xl font-bold mb-2">{selectedCourse.name}</h2>
+                  <p className="text-lg opacity-90 mb-4">{selectedCourse.aiFeature}</p>
+                  <div className="flex gap-4 text-sm">
+                    <span className="bg-white/20 px-3 py-1 rounded-full">📚 {selectedCourse.lessons} Lessons</span>
+                    <span className="bg-white/20 px-3 py-1 rounded-full">🎯 {selectedCourse.topics} Topics</span>
+                    <span className="bg-white/20 px-3 py-1 rounded-full">🎓 {selectedCourse.levelData.name}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-8">
+              {/* Free Trial Preview */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 mb-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
+                    <Play className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-green-900">Free Trial Available!</h3>
+                    <p className="text-sm text-green-700">Try before you subscribe - No credit card required</p>
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-3 gap-4 mb-4">
+                  <div className="bg-white rounded-lg p-4 border border-green-200">
+                    <div className="font-bold text-green-900 mb-1">✓ 3 Free Lessons</div>
+                    <div className="text-xs text-gray-600">Access introductory content</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border border-green-200">
+                    <div className="font-bold text-green-900 mb-1">✓ AI Tutor Support</div>
+                    <div className="text-xs text-gray-600">Get help anytime 24/7</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border border-green-200">
+                    <div className="font-bold text-green-900 mb-1">✓ Interactive Exercises</div>
+                    <div className="text-xs text-gray-600">Practice what you learn</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleFreeTrial(selectedCourse.name)}
+                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-bold hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg"
+                >
+                  🎉 Start Free Trial Now
+                </button>
+              </div>
+
+              {/* Course Overview */}
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <BookOpen className="w-6 h-6 text-purple-600" />
+                  Course Overview
+                </h3>
+                <p className="text-gray-700 mb-4">
+                  This comprehensive course is designed to provide you with in-depth knowledge and practical skills in {selectedCourse.name}. 
+                  Through {selectedCourse.lessons} carefully crafted lessons covering {selectedCourse.topics} major topics, you'll gain expertise using AI-powered learning tools.
+                </p>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="border-l-4 border-purple-600 pl-4">
+                    <h4 className="font-bold mb-2">What You'll Learn</h4>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      <li>✓ Fundamental concepts and advanced techniques</li>
+                      <li>✓ Hands-on projects and real-world applications</li>
+                      <li>✓ AI-assisted learning and personalized feedback</li>
+                      <li>✓ Industry best practices and standards</li>
+                    </ul>
+                  </div>
+                  <div className="border-l-4 border-blue-600 pl-4">
+                    <h4 className="font-bold mb-2">Course Features</h4>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      <li>✓ Self-paced learning with flexible schedule</li>
+                      <li>✓ Interactive quizzes and assignments</li>
+                      <li>✓ Certificate upon completion</li>
+                      <li>✓ Lifetime access to course materials</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Subscription Plans */}
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <CreditCard className="w-6 h-6 text-purple-600" />
+                  Subscription Plans
+                </h3>
+                <div className="grid md:grid-cols-4 gap-4">
+                  {Object.entries(selectedCourse.levelData.plans).map(([key, plan]) => (
+                    <div key={key} className={`rounded-xl p-5 border-2 ${key === 'premium' ? 'border-purple-600 bg-purple-50' : 'border-gray-200 bg-white'}`}>
+                      <div className="text-center mb-3">
+                        <div className="text-3xl font-bold text-purple-600">{plan.price}</div>
+                        <div className="text-sm font-semibold text-gray-700">{plan.name}</div>
+                      </div>
+                      <div className="text-xs text-gray-600 mb-4 text-center">{plan.access}</div>
+                      <button
+                        onClick={() => {
+                          if (plan.priceValue === 0) {
+                            handleFreeTrial(selectedCourse.name);
+                          } else {
+                            handlePayment(selectedCourse.name, plan.priceValue);
+                          }
+                        }}
+                        className={`w-full py-2 rounded-lg text-sm font-semibold transition-all ${
+                          key === 'premium'
+                            ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700'
+                            : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                        }`}
+                      >
+                        {plan.priceValue === 0 ? 'Try Free' : 'Subscribe'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Preview Lessons */}
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <Target className="w-6 h-6 text-purple-600" />
+                  Preview Lessons (Free Trial)
+                </h3>
+                <div className="space-y-3">
+                  {[1, 2, 3].map((num) => (
+                    <div key={num} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-purple-300 transition-colors">
+                      <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                        {num}
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-bold">Lesson {num}: Introduction to {selectedCourse.name}</h4>
+                        <p className="text-sm text-gray-600">15 minutes • Video + Quiz</p>
+                      </div>
+                      <Play className="w-5 h-5 text-purple-600" />
+                    </div>
+                  ))}
+                  <div className="text-center py-4">
+                    <p className="text-gray-600 mb-2">+ {selectedCourse.lessons - 3} more lessons after subscription</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA Buttons */}
+              <div className="flex gap-4">
+                <button
+                  onClick={() => handleFreeTrial(selectedCourse.name)}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg"
+                >
+                  🎉 Start Free Trial
+                </button>
+                <button
+                  onClick={() => {
+                    const standardPlan = selectedCourse.levelData.plans.standard || selectedCourse.levelData.plans.basic;
+                    handlePayment(selectedCourse.name, standardPlan.priceValue);
+                  }}
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-xl font-bold hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg"
+                >
+                  💳 Subscribe Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* AI Chatbot */}
       {chatOpen && (
         <div className="fixed bottom-4 right-4 w-full max-w-md h-[550px] bg-white rounded-2xl shadow-2xl flex flex-col z-50 mx-4 md:mx-0 border-2 border-purple-200">
@@ -1675,6 +1845,14 @@ const EduSpark = () => {
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <img 
+                  src={SIDE_LOGO_URL}
+                  alt="EduSpark Badge"
+                  className="w-12 h-12 rounded-lg object-contain bg-white p-2"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
                   }}
                 />
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center" style={{ display: 'none' }}>
