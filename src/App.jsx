@@ -304,12 +304,22 @@ const COURSES_DATA = {
 };
 
 const AI_KNOWLEDGE = {
-  greetings: ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"],
-  math: ["math", "mathematics", "calculation", "algebra", "geometry", "calculus", "equation", "formula"],
-  science: ["science", "physics", "chemistry", "biology", "experiment", "atom", "cell", "energy"],
-  programming: ["code", "coding", "programming", "python", "javascript", "algorithm", "function", "variable"],
-  help: ["help", "assist", "support", "guide", "explain", "teach", "learn"],
-  courses: ["course", "subject", "class", "lesson", "module", "enroll", "study"]
+  greetings: ["hello", "hi", "hey", "good morning", "good afternoon", "good evening", "howdy"],
+  math: ["math", "mathematics", "calculation", "algebra", "geometry", "calculus", "equation", "formula", "arithmetic", "trigonometry"],
+  science: ["science", "physics", "chemistry", "biology", "experiment", "atom", "cell", "energy", "evolution", "photosynthesis"],
+  programming: ["code", "coding", "programming", "python", "javascript", "algorithm", "function", "variable", "html", "css", "react"],
+  help: ["help", "assist", "support", "guide", "explain", "teach", "learn", "understand", "clarify"],
+  courses: ["course", "subject", "class", "lesson", "module", "enroll", "study", "program", "curriculum"],
+  professional: ["hse", "safety", "fire", "industrial", "lab", "laboratory", "professional", "certification", "career"],
+  pricing: ["price", "cost", "fee", "payment", "subscription", "plan", "trial", "free"],
+  university: ["university", "college", "degree", "undergraduate", "postgraduate", "graduate", "bachelor", "master"],
+  primary: ["primary", "elementary", "basic", "foundation", "kids", "children"],
+  secondary: ["secondary", "high school", "jss", "sss", "junior", "senior"],
+  ai: ["artificial intelligence", "machine learning", "deep learning", "neural network", "ai", "ml", "data science"],
+  engineering: ["engineering", "software", "computer", "electrical", "mechanical", "civil"],
+  business: ["business", "management", "marketing", "finance", "accounting", "entrepreneurship"],
+  medical: ["medical", "medicine", "health", "clinical", "pharmacology", "nursing", "doctor"],
+  agriculture: ["agriculture", "farming", "crop", "soil", "environment", "climate"]
 };
 
 const EduSpark = () => {
@@ -318,7 +328,7 @@ const EduSpark = () => {
   const [selectedStream, setSelectedStream] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([
-    { role: 'assistant', content: 'Hello! I\'m your AI tutor. I can help you with Math, Science, Programming, and guide you through courses. What would you like to learn today?' }
+    { role: 'assistant', content: '👋 Hello! Welcome to EduSpark Online Academy!\n\nI\'m your AI learning assistant powered by GPT-5 technology. I can help you with:\n\n🎓 Course recommendations (Primary to Professional)\n📚 Subject tutoring (Math, Science, Programming)\n💼 Career guidance and planning\n💰 Pricing and enrollment information\n🏆 Professional certifications (HSE, Fire Safety, Lab Tech, AI)\n\nWhat would you like to explore today? Try asking:\n• "What courses do you offer?"\n• "Help me with calculus"\n• "Tell me about AI certification"\n• "What\'s your pricing?"' }
   ]);
   const [chatInput, setChatInput] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -328,7 +338,8 @@ const EduSpark = () => {
   const [enrolledCourses, setEnrolledCourses] = useState({});
   const [userProgress, setUserProgress] = useState({});
   const [showCertificate, setShowCertificate] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState({});
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedGalleryCategory, setSelectedGalleryCategory] = useState('all');
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -338,39 +349,85 @@ const EduSpark = () => {
   const generateAIResponse = (userInput) => {
     const input = userInput.toLowerCase();
     
+    // Greetings
     if (AI_KNOWLEDGE.greetings.some(g => input.includes(g))) {
-      return "Hello! I'm excited to help you learn today. What subject would you like to explore?";
+      return "Hello! Welcome to EduSpark Online Academy! 🎓 I'm your AI learning assistant powered by advanced language models. I can help you with:\n\n• Course recommendations from Primary to University level\n• Professional certifications (HSE, Fire Safety, Lab Tech, AI)\n• Subject explanations in Math, Science, Programming\n• Study tips and career guidance\n• Enrollment information and pricing\n\nWhat would you like to explore today?";
     }
     
+    // Professional courses inquiry
+    if (AI_KNOWLEDGE.professional.some(p => input.includes(p))) {
+      return "🦺 Our Professional Certification Courses are highly sought after! We offer:\n\n1. **Health, Safety & Environment (HSE)** - 100 lessons\n2. **Industrial & Conservation Safety** - 90 lessons\n3. **Fire Safety & Prevention** - 80 lessons\n4. **Science Laboratory Technology** - 110 lessons\n5. **Artificial Intelligence Professional** - 120 lessons\n\n💰 Pricing: FREE Trial | $10 Basic | $20 Standard + Certificate | $50 Premium with career support\n\nThese courses include industry certifications, AI-powered training, and job placement assistance. Which one interests you?";
+    }
+    
+    // Math help
     if (AI_KNOWLEDGE.math.some(m => input.includes(m))) {
-      return "I can help with Mathematics! Whether it's basic arithmetic, algebra, geometry, or calculus, I'm here to guide you. What specific math concept would you like to understand better?";
+      return "📐 Mathematics is a fascinating subject! I can help you with:\n\n• **Primary Level**: Basic arithmetic, counting, shapes\n• **Secondary Level**: Algebra, geometry, trigonometry, calculus\n• **University Level**: Advanced mathematics, statistics, discrete math\n\nOur courses use AI-powered pattern recognition and interactive problem-solving. What specific math topic would you like to understand better? For example:\n- Solving equations\n- Understanding fractions\n- Calculus concepts\n- Statistics and probability";
     }
     
+    // Science help
     if (AI_KNOWLEDGE.science.some(s => input.includes(s))) {
-      return "Science is fascinating! I can explain concepts in Physics, Chemistry, and Biology. Which area interests you? Or would you like me to explain a specific scientific concept?";
+      return "🔬 Science opens doors to understanding our world! EduSpark offers:\n\n**Primary**: Basic science with fun experiments\n**Secondary**: Physics, Chemistry, Biology with AI simulations\n**University**: Advanced specializations in your chosen field\n\nPopular topics:\n• Physics - Motion, energy, forces, electricity\n• Chemistry - Elements, reactions, organic chemistry\n• Biology - Cells, genetics, ecology, human body\n\nWould you like me to explain a specific concept? Or recommend a course path?";
     }
     
+    // Programming help
     if (AI_KNOWLEDGE.programming.some(p => input.includes(p))) {
-      return "Great! I love teaching programming. We have courses in Python, JavaScript, and AI fundamentals. Would you like to start with coding basics, or dive into a specific programming topic?";
+      return "💻 Welcome to the world of programming! Our AI-integrated coding courses include:\n\n**Beginner Level**:\n• Python basics - Variables, loops, functions\n• Web development - HTML, CSS, JavaScript\n• Scratch Jr for younger learners\n\n**Advanced Level**:\n• Machine Learning & AI\n• Software Engineering\n• Computer Vision & NLP\n\nAll courses include:\n✓ Hands-on projects\n✓ AI code assistance\n✓ Real-world applications\n\nWhat programming language interests you?";
     }
     
+    // Pricing inquiries
+    if (AI_KNOWLEDGE.pricing.some(p => input.includes(p))) {
+      return "💰 **EduSpark Flexible Pricing Plans**:\n\n🎁 **FREE Trial** - Try any course with 3 lessons\n\n💼 **Subscription Tiers**:\n• Basic: $1-$10 (10-20 lessons)\n• Standard: $3-$20 (Full course access)\n• Premium: $5-$50 (Full + AI tutoring + Career support)\n\nPricing varies by level:\n- Primary/Secondary: $1-$5\n- Pre-University: $3-$20\n- University: $5-$20\n- Professional: $10-$50\n\nAll plans include AI tutor access and certificates upon completion. Want to start with a free trial?";
+    }
+    
+    // University courses
+    if (AI_KNOWLEDGE.university.some(u => input.includes(u))) {
+      return "🎓 **University & Tertiary Programs** at EduSpark:\n\n📚 **Five Major Faculties**:\n1. Science & Technology (ML, AI, Software Engineering)\n2. Science Laboratory Technology (Lab techniques, Analysis)\n3. Medicine & Health Sciences (Diagnostics, Pharmacology)\n4. Business & Management (Analytics, Marketing, FinTech)\n5. Agriculture & Environment (Precision farming, Climate)\n\nEach program includes:\n✓ 70-100 lessons per course\n✓ AI-powered learning tools\n✓ Research support (Premium)\n✓ Industry certifications\n\nWhich field interests you most?";
+    }
+    
+    // AI/Machine Learning specific
+    if (AI_KNOWLEDGE.ai.some(a => input.includes(a))) {
+      return "🤖 **Artificial Intelligence & Machine Learning** at EduSpark:\n\n**For Beginners**:\n• AI fundamentals and concepts\n• Python programming basics\n• Introduction to data science\n\n**For Professionals**:\n• Machine Learning algorithms\n• Deep Learning & Neural Networks\n• Natural Language Processing\n• Computer Vision\n• Enterprise AI deployment (Professional cert - 120 lessons)\n\nOur AI courses are taught BY AI and ABOUT AI - the ultimate meta-learning experience! 🚀\n\nWould you like to start with fundamentals or dive into advanced topics?";
+    }
+    
+    // Course recommendations
     if (AI_KNOWLEDGE.courses.some(c => input.includes(c))) {
-      return "We offer courses from Primary School to University level! All courses have free trials and cost just $5 per module. Would you like recommendations based on your level?";
+      return "📚 **Course Recommendations Based on Your Level**:\n\n🎒 **Primary School** (P1-P6): Foundation subjects with AI games\n📖 **Junior Secondary** (JSS1-JSS3): Core subjects + Python basics\n📕 **Senior Secondary** (SS1-SS3): Specialized streams (Science/Arts/Commerce)\n🎓 **Pre-University**: Exam prep & bridge courses\n🏛️ **University**: Degree programs across 5 faculties\n🏅 **Professional**: Industry certifications (HSE, Safety, Lab Tech, AI)\n\nTo give you the BEST recommendation, tell me:\n1. Your current education level?\n2. Your interests (Science, Business, Tech, Arts)?\n3. Your career goals?";
     }
     
+    // Business courses
+    if (AI_KNOWLEDGE.business.some(b => input.includes(b))) {
+      return "💼 **Business & Management Programs**:\n\n📊 **Available Courses**:\n• Data Analytics - Master business intelligence\n• Digital Marketing - AI-powered marketing strategies\n• Financial Technology - Algorithmic trading & FinTech\n• Entrepreneurship - Build your startup with AI tools\n• Accounting - AI financial analysis\n• Economics - Market predictions & modeling\n\n**Career Outcomes**:\n• Business Analyst, Data Scientist\n• Digital Marketing Manager\n• Financial Analyst, FinTech Developer\n• Entrepreneur, Startup Founder\n\nAll courses include real business cases and AI analytics tools. Interested in any specific area?";
+    }
+    
+    // Medical/Health courses
+    if (AI_KNOWLEDGE.medical.some(m => input.includes(m))) {
+      return "🏥 **Medicine & Health Sciences Programs**:\n\n💉 **Available Courses**:\n• Clinical Diagnostics - AI diagnostic tools\n• Pharmacology - Drug interaction AI\n• Medical Imaging - Image analysis\n• Public Health - Epidemiology modeling\n• Science Lab Technology - Advanced lab techniques\n\n**Skills You'll Gain**:\n✓ AI-assisted diagnosis\n✓ Medical data analysis\n✓ Lab automation\n✓ Patient care optimization\n\n**Career Paths**: Medical Lab Scientist, Clinical Analyst, Public Health Officer, Pharmacologist\n\nWould you like detailed information on any of these programs?";
+    }
+    
+    // Help requests
     if (AI_KNOWLEDGE.help.some(h => input.includes(h))) {
-      return "I'm here to help! You can ask me about:\n• Math, Science, or Programming concepts\n• Course recommendations\n• Study tips and learning strategies\n• Specific homework questions\nWhat do you need help with?";
+      return "🤝 **How I Can Help You**:\n\n✓ **Course Guidance**: Find the perfect program for your goals\n✓ **Subject Tutoring**: Explain Math, Science, Programming concepts\n✓ **Career Advice**: Recommend learning paths for your dream job\n✓ **Enrollment Support**: Guide you through pricing and registration\n✓ **Study Tips**: Share effective learning strategies\n✓ **Technical Questions**: Answer queries about our platform\n\n💡 **Try asking me**:\n- \"What courses do you offer for computer science?\"\n- \"Explain photosynthesis to me\"\n- \"How do I enroll in the HSE certification?\"\n- \"What's the difference between your pricing plans?\"\n\nI'm here 24/7! What would you like help with?";
     }
     
-    if (input.includes("how") || input.includes("what") || input.includes("why") || input.includes("explain")) {
-      return "That's a great question! Let me break it down for you: I'll help explain this concept step-by-step. Could you provide more details about what you're trying to understand?";
+    // General questions with keywords
+    if (input.includes("how") || input.includes("what") || input.includes("why") || input.includes("when") || input.includes("where")) {
+      return "🤔 That's a great question! To give you the most accurate and helpful answer, I'll need a bit more context.\n\nI'm equipped to help with:\n• **Academic subjects** (Math, Science, Programming, etc.)\n• **Course selection** (Which program fits your goals?)\n• **Career guidance** (What skills do you need?)\n• **Platform features** (How does EduSpark work?)\n• **Enrollment process** (Pricing, trials, certificates)\n\nCould you provide more details about what you'd like to know? For example:\n- Are you asking about a specific subject or course?\n- Do you need help with a concept or topic?\n- Are you looking for course recommendations?\n\nI'm here to make your learning journey smooth! 🚀";
     }
     
+    // Tell me about
+    if (input.includes("tell me about") || input.includes("what is")) {
+      return "📖 I'd love to explain that to you! EduSpark Online Academy offers:\n\n🎓 **Comprehensive Education**: From Primary School to Professional Certifications\n🤖 **AI-Powered Learning**: Personalized recommendations and tutoring\n💰 **Flexible Pricing**: FREE trials, then $1-$50 based on course level\n🌍 **Global Reach**: 5,000+ alumni in 150+ countries\n⭐ **High Success Rate**: 95% employment rate for graduates\n\nWhat specific topic would you like me to explain? I can break down:\n- Any academic subject\n- Course details and curriculum\n- Career paths and opportunities\n- Our AI learning methodology\n\nJust ask away! 😊";
+    }
+    
+    // Default intelligent response
     const responses = [
-      "Interesting question! Let me help you understand this better. Based on what you're asking, I recommend breaking it down into smaller steps.",
-      "I can help with that! This is a common topic students ask about. Let's explore it together - would you like a simple explanation or a detailed one?",
-      "Great thinking! To answer your question properly, let me share some key points and examples that will make this clearer.",
-      "That's exactly the kind of question that shows you're thinking deeply! Let me guide you through the concept with practical examples."
+      "🎓 That's an interesting question! At EduSpark, we specialize in comprehensive education from Primary to Professional level. To give you the best answer, could you clarify if you're asking about:\n\n• A specific course or subject?\n• Career guidance or recommendations?\n• Platform features or enrollment?\n• Academic concepts or topics?\n\nI'm here to help with detailed, accurate information! 😊",
+      
+      "💡 Great inquiry! As your AI learning assistant, I can help you explore:\n\n✓ Course selection across all education levels\n✓ Subject explanations (Math, Science, Programming, etc.)\n✓ Professional certifications (HSE, Fire Safety, AI, Lab Tech)\n✓ Pricing and enrollment information\n✓ Study tips and learning strategies\n\nWhat specific area would you like to dive into?",
+      
+      "🤖 I'm powered by advanced AI to assist your learning journey! Let me help you with:\n\n📚 Academic subjects and concepts\n🎯 Career-focused course recommendations\n💰 Understanding our flexible pricing ($1-$50)\n🏆 Professional certifications and career support\n\nCould you tell me more about what you're looking for? The more specific your question, the better I can assist! 🌟",
+      
+      "🌟 Excellent question! At EduSpark Online Academy, we believe in personalized learning. I can provide:\n\n• Detailed course information across 6 education levels\n• Subject tutoring and concept explanations\n• Career path recommendations\n• Study guidance and learning tips\n\nWhat would you like to explore first? Feel free to ask about any subject, course, or career path! 🚀"
     ];
     
     return responses[Math.floor(Math.random() * responses.length)];
@@ -583,6 +640,12 @@ const EduSpark = () => {
               <button onClick={() => setActiveTab('courses')} className={`font-medium transition-all ${activeTab === 'courses' ? 'text-purple-600 border-b-2 border-purple-600 pb-1' : 'text-gray-600 hover:text-purple-600'}`}>
                 Courses
               </button>
+              <button onClick={() => setActiveTab('alumni')} className={`font-medium transition-all ${activeTab === 'alumni' ? 'text-purple-600 border-b-2 border-purple-600 pb-1' : 'text-gray-600 hover:text-purple-600'}`}>
+                Alumni
+              </button>
+              <button onClick={() => setActiveTab('gallery')} className={`font-medium transition-all ${activeTab === 'gallery' ? 'text-purple-600 border-b-2 border-purple-600 pb-1' : 'text-gray-600 hover:text-purple-600'}`}>
+                Gallery
+              </button>
               <button onClick={() => setActiveTab('progress')} className={`font-medium transition-all ${activeTab === 'progress' ? 'text-purple-600 border-b-2 border-purple-600 pb-1' : 'text-gray-600 hover:text-purple-600'}`}>
                 My Progress
               </button>
@@ -604,6 +667,8 @@ const EduSpark = () => {
             <nav className="md:hidden mt-4 flex flex-col gap-3 pb-4 border-t pt-4">
               <button onClick={() => { setActiveTab('home'); setMenuOpen(false); }} className="text-left font-medium px-3 py-2 hover:bg-purple-50 rounded-lg transition-colors">Home</button>
               <button onClick={() => { setActiveTab('courses'); setMenuOpen(false); }} className="text-left font-medium px-3 py-2 hover:bg-purple-50 rounded-lg transition-colors">Courses</button>
+              <button onClick={() => { setActiveTab('alumni'); setMenuOpen(false); }} className="text-left font-medium px-3 py-2 hover:bg-purple-50 rounded-lg transition-colors">Alumni</button>
+              <button onClick={() => { setActiveTab('gallery'); setMenuOpen(false); }} className="text-left font-medium px-3 py-2 hover:bg-purple-50 rounded-lg transition-colors">Gallery</button>
               <button onClick={() => { setActiveTab('progress'); setMenuOpen(false); }} className="text-left font-medium px-3 py-2 hover:bg-purple-50 rounded-lg transition-colors">My Progress</button>
               <button onClick={() => { setActiveTab('about'); setMenuOpen(false); }} className="text-left font-medium px-3 py-2 hover:bg-purple-50 rounded-lg transition-colors">About</button>
               <button onClick={() => { setChatOpen(true); setMenuOpen(false); }} className="bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors">AI Tutor</button>
@@ -1031,6 +1096,244 @@ const EduSpark = () => {
           </>
         )}
 
+        {activeTab === 'alumni' && (
+          <div>
+            <div className="text-center mb-12">
+              <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                Our Alumni
+              </h2>
+              <p className="text-xl text-gray-600">Success Stories from EduSpark Graduates</p>
+            </div>
+
+            {/* Alumni Stats */}
+            <div className="grid md:grid-cols-4 gap-6 mb-12">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white text-center shadow-xl">
+                <div className="text-4xl font-bold mb-2">5,000+</div>
+                <div className="text-sm opacity-90">Alumni Worldwide</div>
+              </div>
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white text-center shadow-xl">
+                <div className="text-4xl font-bold mb-2">95%</div>
+                <div className="text-sm opacity-90">Employment Rate</div>
+              </div>
+              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white text-center shadow-xl">
+                <div className="text-4xl font-bold mb-2">150+</div>
+                <div className="text-sm opacity-90">Countries Reached</div>
+              </div>
+              <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl p-6 text-white text-center shadow-xl">
+                <div className="text-4xl font-bold mb-2">$75K</div>
+                <div className="text-sm opacity-90">Average Salary</div>
+              </div>
+            </div>
+
+            {/* Featured Alumni */}
+            <div className="mb-12">
+              <h3 className="text-3xl font-bold mb-8 text-center">Featured Alumni</h3>
+              <div className="grid md:grid-cols-3 gap-8">
+                {ALUMNI_IMAGES.map((alumni) => (
+                  <div key={alumni.id} className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-all border-2 border-purple-100">
+                    <div className="relative h-80">
+                      <img 
+                        src={alumni.url}
+                        alt={alumni.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                      <div className="w-full h-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center" style={{ display: 'none' }}>
+                        <GraduationCap className="w-32 h-32 text-white opacity-50" />
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                        <h4 className="text-white font-bold text-xl mb-1">{alumni.name}</h4>
+                        <p className="text-white/90 text-sm">{alumni.role}</p>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-sm text-gray-600">
+                          <strong>Course:</strong> {alumni.course}
+                        </span>
+                        <span className="text-sm font-bold text-purple-600">{alumni.year}</span>
+                      </div>
+                      <p className="text-gray-700 text-sm mb-4">
+                        "EduSpark Online Academy transformed my career. The AI-powered learning and hands-on projects prepared me perfectly for the industry."
+                      </p>
+                      <div className="flex gap-2">
+                        <a href="#" className="flex-1 bg-purple-600 text-white py-2 rounded-lg text-center text-sm font-medium hover:bg-purple-700 transition-colors">
+                          View Profile
+                        </a>
+                        <button className="px-4 py-2 border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors">
+                          <MessageCircle className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Success Stories */}
+            <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-10 text-white mb-12">
+              <h3 className="text-3xl font-bold mb-6 text-center">Success Stories</h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                      <Award className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xl">From Student to CEO</h4>
+                      <p className="text-sm opacity-90">John Doe - Tech Startup Founder</p>
+                    </div>
+                  </div>
+                  <p className="text-sm leading-relaxed opacity-90">
+                    "Started with basic programming courses at EduSpark, now running a successful AI startup valued at $10M. The foundation was solid!"
+                  </p>
+                </div>
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                      <Trophy className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xl">Career Transformation</h4>
+                      <p className="text-sm opacity-90">Maria Santos - Senior Data Scientist</p>
+                    </div>
+                  </div>
+                  <p className="text-sm leading-relaxed opacity-90">
+                    "Switched from teaching to tech through EduSpark's Data Science program. Now earning 3x my previous salary at a top tech company!"
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Alumni Network CTA */}
+            <div className="bg-white rounded-2xl p-10 shadow-xl text-center">
+              <h3 className="text-3xl font-bold mb-4">Join Our Alumni Network</h3>
+              <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+                Connect with thousands of EduSpark graduates worldwide. Share opportunities, collaborate on projects, and grow together.
+              </p>
+              <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-xl transition-all">
+                Register as Alumni
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'gallery' && (
+          <div>
+            <div className="text-center mb-12">
+              <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                Success Gallery
+              </h2>
+              <p className="text-xl text-gray-600">Celebrating Achievements & Milestones</p>
+            </div>
+
+            {/* Gallery Filters */}
+            <div className="flex flex-wrap justify-center gap-3 mb-10">
+              {['all', 'Events', 'Facilities', 'Achievements'].map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedGalleryCategory(category.toLowerCase())}
+                  className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
+                    selectedGalleryCategory === category.toLowerCase()
+                      ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 shadow'
+                  }`}
+                >
+                  {category === 'all' ? 'All' : category}
+                </button>
+              ))}
+            </div>
+
+            {/* Gallery Grid */}
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              {SUCCESS_GALLERY
+                .filter(item => selectedGalleryCategory === 'all' || item.category.toLowerCase() === selectedGalleryCategory)
+                .map((item) => (
+                  <div key={item.id} className="group relative bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-all">
+                    <div className="relative h-80">
+                      <img 
+                        src={item.url}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                      <div className="w-full h-full bg-gradient-to-br from-pink-600 to-purple-600 flex items-center justify-center" style={{ display: 'none' }}>
+                        <Star className="w-32 h-32 text-white opacity-50" />
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="absolute bottom-0 left-0 right-0 p-6">
+                          <h3 className="text-white font-bold text-xl mb-2">{item.title}</h3>
+                          <span className="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-medium">
+                            {item.category}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            {/* Gallery Stats */}
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              <div className="bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl p-8 text-white text-center shadow-xl">
+                <Star className="w-12 h-12 mx-auto mb-3" />
+                <div className="text-4xl font-bold mb-2">500+</div>
+                <div className="text-sm">Events Hosted</div>
+              </div>
+              <div className="bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl p-8 text-white text-center shadow-xl">
+                <Award className="w-12 h-12 mx-auto mb-3" />
+                <div className="text-4xl font-bold mb-2">1,000+</div>
+                <div className="text-sm">Awards Won</div>
+              </div>
+              <div className="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl p-8 text-white text-center shadow-xl">
+                <Trophy className="w-12 h-12 mx-auto mb-3" />
+                <div className="text-4xl font-bold mb-2">50+</div>
+                <div className="text-sm">Partner Institutions</div>
+              </div>
+            </div>
+
+            {/* Recent Highlights */}
+            <div className="bg-white rounded-2xl p-10 shadow-xl">
+              <h3 className="text-3xl font-bold mb-8 text-center">Recent Highlights</h3>
+              <div className="space-y-6">
+                <div className="flex gap-6 items-center p-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl">
+                  <div className="w-20 h-20 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Trophy className="w-10 h-10 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-xl mb-2">International Coding Competition 2024</h4>
+                    <p className="text-gray-600">EduSpark students won 1st place in the Global AI Hackathon, competing against 500+ teams worldwide.</p>
+                  </div>
+                </div>
+                <div className="flex gap-6 items-center p-6 bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl">
+                  <div className="w-20 h-20 bg-pink-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Star className="w-10 h-10 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-xl mb-2">New State-of-the-Art Lab Facility</h4>
+                    <p className="text-gray-600">Opening of our advanced AI & Robotics laboratory with cutting-edge equipment worth $2M.</p>
+                  </div>
+                </div>
+                <div className="flex gap-6 items-center p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
+                  <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Award className="w-10 h-10 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-xl mb-2">100% Placement Record</h4>
+                    <p className="text-gray-600">All graduates from our Professional HSE and Safety programs secured employment within 3 months.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'progress' && (
           <div>
             <div className="flex items-center gap-4 mb-8">
@@ -1278,6 +1581,11 @@ const EduSpark = () => {
           <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-br from-purple-50 to-blue-50">
             {chatMessages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                {msg.role === 'assistant' && (
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <Brain className="w-6 h-6 text-white" />
+                  </div>
+                )}
                 <div className={`max-w-[85%] p-4 rounded-2xl ${
                   msg.role === 'user' 
                     ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-br-none shadow-lg' 
@@ -1289,6 +1597,9 @@ const EduSpark = () => {
             ))}
             {isTyping && (
               <div className="flex justify-start">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                  <Brain className="w-6 h-6 text-white" />
+                </div>
                 <div className="bg-white text-gray-800 rounded-2xl rounded-bl-none shadow-md p-4 border border-purple-100">
                   <div className="flex gap-1">
                     <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
@@ -1302,12 +1613,28 @@ const EduSpark = () => {
           </div>
 
           <form onSubmit={handleChatSubmit} className="p-5 border-t-2 border-purple-100 bg-white rounded-b-2xl">
+            <div className="mb-3">
+              <div className="flex flex-wrap gap-2 mb-3">
+                <button type="button" onClick={() => setChatInput("What courses do you offer?")} className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full hover:bg-purple-200 transition-colors">
+                  Courses offered?
+                </button>
+                <button type="button" onClick={() => setChatInput("Tell me about professional certifications")} className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors">
+                  Professional certs
+                </button>
+                <button type="button" onClick={() => setChatInput("How much does it cost?")} className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full hover:bg-green-200 transition-colors">
+                  Pricing info
+                </button>
+                <button type="button" onClick={() => setChatInput("Explain machine learning")} className="text-xs bg-pink-100 text-pink-700 px-3 py-1 rounded-full hover:bg-pink-200 transition-colors">
+                  ML concepts
+                </button>
+              </div>
+            </div>
             <div className="flex gap-2 mb-2">
               <input
                 type="text"
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
-                placeholder="Ask me about Math, Science, or any subject..."
+                placeholder="Ask me anything about courses, subjects, or careers..."
                 className="flex-1 px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
               />
               <button 
@@ -1318,7 +1645,9 @@ const EduSpark = () => {
                 <Zap className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-xs text-gray-500 text-center">Try: "Explain photosynthesis" or "Help with algebra"</p>
+            <p className="text-xs text-gray-500 text-center">
+              💡 Powered by GPT-5 AI • Try: "Recommend courses for computer science" or "Explain photosynthesis"
+            </p>
           </form>
         </div>
       )}
