@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BookOpen, MessageCircle, Sparkles, Search, Menu, X, ChevronRight, GraduationCap, Brain, Zap, CreditCard, Star, Users, Award, TrendingUp, Play, Target, Eye, Heart, CheckCircle, BarChart, Trophy, Clock, Download, Settings, PieChart, DollarSign, UserPlus, FileText, Activity, Shield, LogIn, LogOut, User, Mail } from 'lucide-react';
 
-const LOGO_URL = "https://i.imgur.com/LsQEpvp.png";
+const LOGO_URL = "https://i.imgur.com/WFTXRvd.png";
 const HERO_IMAGE_URL = "https://i.imgur.com/XN6eC0i.png";
 const BACKGROUND_VIDEO_URL = "https://assets.grok.com/users/7ef6dcfd-8def-44f9-a7d5-b67c48e9fd6e/generated/a42d727a-8ce5-4052-a79d-6b2843f4df43/generated_video.mp4";
 
@@ -17,7 +17,8 @@ const SUCCESS_GALLERY = [
   { id: 3, url: "https://i.imgur.com/MAHhM2i.png", title: "Award Winners", category: "Achievements", type: "image" }
 ];
 
-const SIDE_LOGO_URL = "https://i.imgur.com/sRd0Ate.png";
+const SIDE_LOGO_URL = "https://i.imgur.com/WFTXRvd.png";
+const FOUNDER_IMAGE_URL = "https://i.imgur.com/Py3bWNH.png";
 
 const COURSES_DATA = {
   primary: {
@@ -193,15 +194,15 @@ const EduSpark = () => {
   const generateAdvancedAIResponse = async (userInput) => {
     const input = userInput.toLowerCase();
     
-    if (/\b(hello|hi|hey|good morning|good afternoon|good evening|howdy|greetings)\b/i.test(input)) {
-      return "👋 Hello! I'm your AI learning assistant powered by advanced GPT-5 technology. I can help you with:\n\n🎓 Course recommendations (Primary to Professional)\n📚 Subject tutoring & explanations\n💰 Pricing and enrollment information\n🏆 Career guidance and planning\n💡 General knowledge questions\n\nWhat would you like to know today?";
+    // Greetings
+    if (/\b(hello|hi|hey|good morning|good afternoon|good evening|howdy|greetings|sup|yo)\b/i.test(input)) {
+      return "👋 Hello! I'm your AI learning assistant powered by GPT-5 technology. I can help you with:\n\n🎓 Course recommendations\n📚 Subject explanations\n💰 Pricing information\n🏆 Career guidance\n💡 Homework help\n\nWhat would you like to know?";
     }
     
+    // Math queries with actual calculations
     if (/\b(math|mathematics|algebra|geometry|calculus|equation|formula|solve|calculate)\b/i.test(input)) {
-      if (input.includes('help') || input.includes('learn') || input.includes('teach')) {
-        return "📐 I'd love to help you with mathematics! Our courses cover:\n\n• Primary: Basic arithmetic, counting, shapes\n• Secondary: Algebra, geometry, trigonometry\n• Advanced: Calculus, statistics, linear algebra\n\nWe use AI-powered pattern recognition and interactive problem-solving. What specific math topic would you like to explore?";
-      }
-      const calcMatch = input.match(/(\d+)\s*([\+\-\*\/])\s*(\d+)/);
+      // Advanced calculation detection
+      const calcMatch = input.match(/(\d+\.?\d*)\s*([\+\-\*\/\^])\s*(\d+\.?\d*)/);
       if (calcMatch) {
         const [, num1, operator, num2] = calcMatch;
         const a = parseFloat(num1);
@@ -210,39 +211,117 @@ const EduSpark = () => {
         switch(operator) {
           case '+': result = a + b; break;
           case '-': result = a - b; break;
-          case '*': result = a * b; break;
-          case '/': result = b !== 0 ? a / b : 'undefined (division by zero)'; break;
+          case '*': case 'x': case '×': result = a * b; break;
+          case '/': case '÷': result = b !== 0 ? (a / b).toFixed(4) : 'undefined'; break;
+          case '^': result = Math.pow(a, b); break;
         }
-        return `🔢 Calculation: ${a} ${operator} ${b} = ${result}\n\nWould you like me to explain the steps or help you with more complex problems?`;
+        return `🔢 **Calculation Result:**\n\n${a} ${operator} ${b} = **${result}**\n\n✓ Solution confirmed!\n\nNeed help with more problems? Just ask!`;
       }
-      return "📐 I can help with math! Our courses include interactive lessons with AI assistance. Which level interests you?";
+      
+      // Square root
+      if (/square root|sqrt/i.test(input)) {
+        const numMatch = input.match(/(\d+)/);
+        if (numMatch) {
+          const num = parseFloat(numMatch[1]);
+          const result = Math.sqrt(num).toFixed(4);
+          return `🔢 Square Root Calculation:\n\n√${num} = **${result}**\n\nWant to learn more about roots and powers?`;
+        }
+      }
+      
+      // Percentage calculations
+      if (/percent|%/i.test(input)) {
+        const percentMatch = input.match(/(\d+)\s*%\s*of\s*(\d+)/i);
+        if (percentMatch) {
+          const [, percent, number] = percentMatch;
+          const result = (parseFloat(percent) / 100) * parseFloat(number);
+          return `🔢 Percentage Calculation:\n\n${percent}% of ${number} = **${result}**\n\nFormula: (${percent} ÷ 100) × ${number} = ${result}`;
+        }
+      }
+      
+      return "📐 I can help you with mathematics! Try asking:\n\n• \"Calculate 25 + 17\"\n• \"What is 12 × 8?\"\n• \"Find square root of 144\"\n• \"15% of 200\"\n• \"Explain quadratic equations\"\n• \"Help me with fractions\"\n\nWhat math problem can I solve for you?";
     }
     
-    if (/\b(science|physics|chemistry|biology|experiment|cell|atom|energy|photosynthesis)\b/i.test(input)) {
-      return "🔬 Science is fascinating! I can help you understand:\n\n🧪 Chemistry - Elements, reactions, organic chemistry\n⚡ Physics - Motion, energy, forces, electricity\n🦠 Biology - Cells, genetics, ecology, human body\n\nOur courses feature AI simulations and interactive experiments. What would you like to explore?";
+    // Science queries with detailed answers
+    if (/\b(science|physics|chemistry|biology|experiment|cell|atom|energy|photosynthesis|force|gravity)\b/i.test(input)) {
+      if (/photosynthesis/i.test(input)) {
+        return "🌱 **Photosynthesis Explained:**\n\nPhotosynthesis is how plants make food!\n\n**Equation:**\n6CO₂ + 6H₂O + Light → C₆H₁₂O₆ + 6O₂\n\n**Simple Terms:**\nCarbon dioxide + Water + Sunlight → Glucose + Oxygen\n\n**Why It Matters:**\n• Plants create their own food\n• They release oxygen we breathe\n• Foundation of all food chains\n\nWant to learn more about plant biology?";
+      }
+      
+      if (/gravity|newton/i.test(input)) {
+        return "⚡ **Gravity & Newton's Laws:**\n\n**Gravity:** Force that pulls objects toward each other\n• On Earth: 9.8 m/s²\n• Keeps us grounded!\n• Makes things fall down\n\n**Newton's Laws:**\n1️⃣ Objects stay still or moving unless forced to change\n2️⃣ F = ma (Force = Mass × Acceleration)\n3️⃣ Every action has equal opposite reaction\n\n**Example:** When you jump, you push Earth down, Earth pushes you up!\n\nAny specific physics questions?";
+      }
+      
+      if (/cell/i.test(input)) {
+        return "🔬 **Cell Biology:**\n\nCells are the basic units of life!\n\n**Main Parts:**\n• Nucleus - Control center (contains DNA)\n• Mitochondria - Energy factory\n• Cell Membrane - Protective barrier\n• Cytoplasm - Jelly-like fluid\n\n**Fun Facts:**\n• Your body has 37 trillion cells!\n• Red blood cells live 120 days\n• Nerve cells can be 3 feet long!\n\nWant to explore more about cells?";
+      }
+      
+      return "🔬 Science is amazing! I can explain:\n\n🧪 Chemistry - Atoms, reactions, periodic table\n⚡ Physics - Motion, energy, forces\n🦠 Biology - Cells, genetics, ecosystems\n🌍 Earth Science - Weather, rocks, climate\n\nWhat scientific concept would you like to understand?";
     }
     
-    if (/\b(code|coding|programming|python|javascript|html|css|react|algorithm|software)\b/i.test(input)) {
-      return "💻 Welcome to programming! I can assist with:\n\n🐍 Python - Variables, loops, functions, AI/ML\n🌐 Web Development - HTML, CSS, JavaScript, React\n🤖 AI Programming - Machine learning, neural networks\n⚙️ Software Engineering - Best practices, algorithms\n\nWhat would you like to learn?";
+    // Programming and coding help
+    if (/\b(code|coding|programming|python|javascript|html|css|react|algorithm|software|function|variable|loop)\b/i.test(input)) {
+      if (/python/i.test(input)) {
+        return "🐍 **Python Programming:**\n\nPython is beginner-friendly!\n\n**Basic Example:**\n```python\n# Variables\nname = \"Student\"\nage = 15\n\n# Function\ndef greet(name):\n    return f\"Hello, {name}!\"\n\n# Loop\nfor i in range(5):\n    print(i)\n```\n\n**What Python Does:**\n• Web development\n• Data science\n• AI & Machine Learning\n• Automation\n\nWant to learn a specific Python concept?";
+      }
+      
+      if (/javascript/i.test(input)) {
+        return "💻 **JavaScript Basics:**\n\n**Example Code:**\n```javascript\n// Variables\nlet name = \"Student\";\nconst age = 15;\n\n// Function\nfunction greet(name) {\n    return `Hello, ${name}!`;\n}\n\n// Array\nconst numbers = [1, 2, 3, 4, 5];\n```\n\n**JavaScript Powers:**\n• Interactive websites\n• Web applications\n• Mobile apps\n• Games\n\nWhat JS topic interests you?";
+      }
+      
+      return "💻 **Programming Help Available:**\n\n**Languages:**\n• Python - Beginner friendly\n• JavaScript - Web development\n• HTML/CSS - Website structure\n• React - UI frameworks\n\n**Concepts I Can Explain:**\n• Variables & data types\n• Functions & loops\n• Arrays & objects\n• Algorithms\n\nWhat programming question do you have?";
     }
     
-    if (/\b(course|class|subject|program|enroll|study|learn about)\b/i.test(input)) {
-      return "📚 EduSpark offers comprehensive courses:\n\n🎒 Primary (P1-P6) - Foundation subjects\n📖 Junior Secondary (JSS1-3) - Core curriculum\n📕 Senior Secondary (SS1-3) - Specialized streams\n🎓 University - 5 major faculties\n🏅 Professional - HSE, Fire Safety, Lab Tech, AI\n\n💰 Flexible Plans: FREE Trial | $1-$10 Basic | $3-$20 Standard | $5-$50 Premium\n\nWhich level interests you?";
+    // Homework help
+    if (/\b(homework|assignment|help me|explain|don't understand|confused|stuck)\b/i.test(input)) {
+      return "📚 **Homework Help:**\n\nI'm here to help you understand!\n\n**How I Can Assist:**\n• Explain difficult concepts\n• Break down problems step-by-step\n• Provide examples\n• Guide you to the solution\n\n**Please share:**\n1. What subject?\n2. What specific topic?\n3. What part is confusing?\n\nExample: \"Help me understand fractions in math\" or \"Explain photosynthesis for my biology homework\"\n\nWhat do you need help with?";
     }
     
-    if (/\b(price|cost|fee|payment|subscription|plan|how much|afford)\b/i.test(input)) {
-      return "💰 Our Flexible Pricing:\n\n🎁 FREE Trial - Try any course (3 lessons)\n💵 Basic - $1 to $10 (10-20 lessons)\n💳 Standard - $3 to $20 (Full course access)\n⭐ Premium - $5 to $50 (AI tutoring + career support)\n\nAll plans include AI tutor access, interactive lessons, certificates, and progress tracking. Ready to start?";
+    // Course information
+    if (/\b(course|class|subject|program|enroll|study|learn about|what courses)\b/i.test(input)) {
+      return "📚 **EduSpark Courses:**\n\n🎒 **Primary (P1-P6)**\nEnglish, Math, Science, ICT, Arts\n\n📖 **Secondary (JSS & SSS)**\nCore subjects + Specialized streams\n\n🎓 **University**\n• Technology & Engineering\n• Medicine & Health\n• Business & Management\n• Science & Research\n\n🏅 **Professional**\n• HSE Certification\n• Fire Safety\n• Lab Technology\n• AI & Software Development\n\n💰 Plans: FREE Trial → $1 → $3-$20 → $50\n\nWhich level interests you?";
     }
     
-    if (/\b(career|job|work|employment|profession|future|salary)\b/i.test(input)) {
-      return "🎯 Career Guidance:\n\n💼 Tech Careers: Software Engineer, Data Scientist ($80k-$150k+)\n🏥 Healthcare: Medical Lab Scientist ($50k-$90k)\n🦺 Safety Professional: HSE Officer ($45k-$85k)\n📊 Business: Data Analyst, Marketing Manager ($55k-$100k)\n\nOur certifications include job placement assistance and career counseling. What field interests you?";
+    // Pricing
+    if (/\b(price|cost|fee|payment|subscription|plan|how much|afford|cheap|expensive)\b/i.test(input)) {
+      return "💰 **Flexible Pricing:**\n\n🎁 **FREE TRIAL**\n• 3 interactive lessons\n• AI tutor access\n• Try before you buy!\n\n💵 **BASIC: $1-$10**\n• 10-20 lessons\n• Progress tracking\n• Certificates\n\n💳 **STANDARD: $3-$20**\n• Full course access\n• All features unlocked\n• Priority support\n\n⭐ **PREMIUM: $5-$50**\n• Everything included\n• Career guidance\n• Job placement help\n\n**Why So Affordable?**\nWe believe education should be accessible to everyone!\n\nReady to start your free trial?";
     }
     
-    if (/\b(help|assist|support|guide|confused|don't understand)\b/i.test(input)) {
-      return "🆘 I'm here to help! I can assist with:\n\n✅ Course Selection - Find the right program\n✅ Subject Tutoring - Explain concepts\n✅ Technical Questions - Platform features\n✅ Enrollment - Registration & payment\n✅ Career Advice - Plan your future\n\nJust ask me anything!";
+    // Career guidance
+    if (/\b(career|job|work|employment|profession|future|salary|degree)\b/i.test(input)) {
+      return "🎯 **Career Guidance:**\n\n**High-Demand Careers:**\n\n💻 **Technology**\n• Software Developer: $80k-$150k\n• Data Scientist: $90k-$160k\n• AI Engineer: $100k-$180k\n\n🏥 **Healthcare**\n• Lab Scientist: $50k-$90k\n• Medical Technician: $45k-$80k\n• Pharmacist: $100k-$140k\n\n🦺 **Safety & Compliance**\n• HSE Officer: $45k-$85k\n• Fire Safety Expert: $50k-$90k\n\n📊 **Business**\n• Data Analyst: $55k-$100k\n• Marketing Manager: $60k-$110k\n\n**Our Courses Prepare You For:**\n• Industry certifications\n• Job-ready skills\n• Portfolio building\n• Interview prep\n\nWhat career path interests you?";
     }
     
-    return `🤖 I understand you asked: "${userInput}"\n\nI can help you with:\n\n📖 Subject Explanations\n🎓 Course Information\n💰 Pricing & Plans\n🎯 Career Guidance\n💡 General Questions\n\nCould you please be more specific?`;
+    // Study tips
+    if (/\b(study|tips|how to learn|remember|memorize|exam|test)\b/i.test(input)) {
+      return "📖 **Effective Study Tips:**\n\n**1. Active Learning**\n• Don't just read - practice!\n• Teach concepts to someone\n• Create your own examples\n\n**2. Spaced Repetition**\n• Review material over time\n• Don't cram everything at once\n• Use flashcards\n\n**3. Break It Down**\n• Study in 25-minute chunks\n• Take 5-minute breaks\n• Pomodoro Technique works!\n\n**4. Multiple Senses**\n• Read, write, listen, speak\n• Watch videos + take notes\n• Draw diagrams\n\n**5. Practice Tests**\n• Test yourself regularly\n• Identify weak areas\n• Review mistakes\n\n**Pro Tip:** Sleep 7-8 hours before exams - your brain needs rest!\n\nNeed subject-specific study strategies?";
+    }
+    
+    // General knowledge questions
+    if (/\b(what is|define|explain|tell me about|how does|why|when|where)\b/i.test(input)) {
+      if (input.includes('eduspark')) {
+        return "🌟 **About EduSpark:**\n\nWe're an AI-powered learning platform transforming education!\n\n**What We Offer:**\n• 500+ courses (Primary → Professional)\n• GPT-5 AI tutor (24/7 available)\n• Flexible pricing ($0-$50)\n• Interactive lessons\n• Industry certifications\n\n**Our Impact:**\n• 10,000+ active students\n• 150+ countries reached\n• 95% success rate\n• 4.8/5 student rating\n• 85% course completion\n\n**Mission:** Make quality education accessible to everyone, everywhere.\n\nWhat else would you like to know?";
+      }
+      
+      return "🤔 **I'm Here to Help!**\n\nI can explain concepts, solve problems, and guide your learning.\n\n**Try asking:**\n• \"What is photosynthesis?\"\n• \"Explain Newton's laws\"\n• \"How do I learn Python?\"\n• \"What are fractions?\"\n• \"Define machine learning\"\n\n**Or get help with:**\n• Math calculations\n• Science experiments\n• Coding problems\n• Homework questions\n• Career planning\n\nWhat specific topic interests you?";
+    }
+    
+    // Professional certifications
+    if (/\b(hse|safety|fire|laboratory|lab tech|certification|professional|certificate)\b/i.test(input)) {
+      return "🏅 **Professional Certifications:**\n\n**1. HSE (Health, Safety & Environment)**\n• 100 lessons • $10-$50\n• Risk assessment\n• Safety protocols\n• Industry certification\n\n**2. Fire Safety & Prevention**\n• 80 lessons • $10-$50\n• Fire hazard detection\n• Emergency response\n• Hands-on training\n\n**3. Science Lab Technology**\n• 110 lessons • $10-$50\n• Lab techniques\n• Equipment handling\n• Quality control\n\n**4. AI Professional**\n• 120 lessons • $10-$50\n• Machine learning\n• Deep learning\n• Enterprise AI\n\n**Benefits:**\n✓ Industry-recognized\n✓ Job placement assistance\n✓ Career advancement\n✓ Salary increase potential\n\nWhich certification interests you?";
+    }
+    
+    // Motivational responses
+    if (/\b(hard|difficult|can't|give up|frustrated|tired)\b/i.test(input)) {
+      return "💪 **You've Got This!**\n\nLearning can be challenging, but that's how we grow!\n\n**Remember:**\n• Every expert was once a beginner\n• Mistakes are proof you're trying\n• Small progress is still progress\n• Your effort matters more than talent\n\n**Tips When Struggling:**\n1. Take a short break\n2. Review basics first\n3. Ask for help (like you're doing now!)\n4. Break problems into smaller steps\n5. Celebrate small wins\n\n\"Education is not the filling of a pail, but the lighting of a fire.\" - W.B. Yeats\n\nWhat specific challenge can I help you overcome?";
+    }
+    
+    // Thank you
+    if (/\b(thank|thanks|appreciate|helpful|great)\b/i.test(input)) {
+      return "😊 **You're Welcome!**\n\nI'm happy I could help! Remember:\n\n• I'm available 24/7\n• No question is too small\n• Learning is a journey\n• You're doing great!\n\n**Keep Learning:**\n✓ Practice regularly\n✓ Stay curious\n✓ Ask questions\n✓ Never stop growing\n\nNeed anything else? Just ask!";
+    }
+    
+    // Default intelligent response
+    return `🤖 **I understand you said:** "${userInput}"\n\n**I can help with:**\n\n📚 **Subjects:** Math, Science, English, Programming\n🧮 **Calculations:** Math problems, percentages, conversions\n💡 **Explanations:** Concepts, theories, definitions\n📖 **Homework:** Step-by-step guidance\n🎓 **Courses:** Information about our 500+ courses\n💰 **Pricing:** Plans from FREE to $50\n🎯 **Career:** Job guidance and planning\n\n**Try asking:**\n• "Calculate 45 × 23"\n• "Explain photosynthesis"\n• "What Python courses do you have?"\n• "Help me with my math homework"\n• "What are your pricing plans?"\n\nHow can I assist you today?`;
   };
 
   const handleChatSubmit = async (e) => {
@@ -562,7 +641,6 @@ const EduSpark = () => {
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <img src={LOGO_URL} alt="EduSpark" className="w-14 h-14 rounded-xl object-contain bg-gradient-to-br from-purple-100 to-blue-100 p-2 shadow-lg" />
-                <img src={SIDE_LOGO_URL} alt="Badge" className="w-14 h-14 rounded-xl object-contain bg-gradient-to-br from-blue-100 to-purple-100 p-2 shadow-lg" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold rainbow-text">
@@ -729,36 +807,6 @@ const EduSpark = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16">
-              {[
-                { icon: Play, title: "Free Trials", desc: "Try before subscribing", color: "green" },
-                { icon: BookOpen, title: "Flexible Plans", desc: "$1-$50 options", color: "purple" },
-                { icon: Brain, title: "AI Tutor", desc: "24/7 help", color: "blue" },
-                { icon: CreditCard, title: "Easy Payment", desc: "Secure checkout", color: "pink" }
-              ].map((feature, idx) => (
-                <div key={idx} className="bg-white rounded-xl p-4 md:p-6 shadow-lg text-center hover:shadow-2xl transition-all transform hover:-translate-y-2">
-                  <feature.icon className={`w-10 h-10 md:w-14 md:h-14 text-${feature.color}-600 mx-auto mb-3 md:mb-4`} />
-                  <h3 className="font-bold text-sm md:text-lg mb-1 md:mb-2">{feature.title}</h3>
-                  <p className="text-xs md:text-sm text-gray-600">{feature.desc}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16">
-              {[
-                { icon: Users, value: "10,000+", label: "Students" },
-                { icon: BookOpen, value: "500+", label: "Courses" },
-                { icon: Award, value: "95%", label: "Success" },
-                { icon: TrendingUp, value: "4.8/5", label: "Rating" }
-              ].map((stat, idx) => (
-                <div key={idx} className="bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl p-6 md:p-8 text-white shadow-xl hover:shadow-2xl transition-all">
-                  <stat.icon className="w-8 h-8 md:w-12 md:h-12 mb-2 md:mb-3" />
-                  <div className="text-2xl md:text-4xl font-bold mb-1 md:mb-2">{stat.value}</div>
-                  <div className="text-xs md:text-sm opacity-90">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-
             <div className="mb-16">
               <h3 className="text-3xl font-bold mb-8 text-center">Choose Your Level</h3>
               <div className="grid md:grid-cols-3 gap-6">
@@ -777,6 +825,21 @@ const EduSpark = () => {
                   </button>
                 ))}
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              {[
+                { icon: Play, title: "Free Trials", desc: "Try before subscribing", color: "green" },
+                { icon: BookOpen, title: "Flexible Plans", desc: "$1-$50 options", color: "purple" },
+                { icon: Brain, title: "AI Tutor", desc: "24/7 help", color: "blue" },
+                { icon: CreditCard, title: "Easy Payment", desc: "Secure checkout", color: "pink" }
+              ].map((feature, idx) => (
+                <div key={idx} className="bg-white rounded-xl p-4 md:p-6 shadow-lg text-center hover:shadow-2xl transition-all transform hover:-translate-y-2">
+                  <feature.icon className={`w-10 h-10 md:w-14 md:h-14 text-${feature.color}-600 mx-auto mb-3 md:mb-4`} />
+                  <h3 className="font-bold text-sm md:text-lg mb-1 md:mb-2">{feature.title}</h3>
+                  <p className="text-xs md:text-sm text-gray-600">{feature.desc}</p>
+                </div>
+              ))}
             </div>
           </>
         )}
@@ -853,6 +916,24 @@ const EduSpark = () => {
                 </div>
               </div>
             )}
+
+            <div className="mt-16">
+              <h3 className="text-3xl font-bold mb-8 text-center">Why Choose EduSpark?</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                {[
+                  { icon: Play, title: "Free Trials", desc: "Try before subscribing", color: "green" },
+                  { icon: BookOpen, title: "Flexible Plans", desc: "$1-$50 options", color: "purple" },
+                  { icon: Brain, title: "AI Tutor", desc: "24/7 help", color: "blue" },
+                  { icon: CreditCard, title: "Easy Payment", desc: "Secure checkout", color: "pink" }
+                ].map((feature, idx) => (
+                  <div key={idx} className="bg-white rounded-xl p-4 md:p-6 shadow-lg text-center hover:shadow-2xl transition-all transform hover:-translate-y-2">
+                    <feature.icon className={`w-10 h-10 md:w-14 md:h-14 text-${feature.color}-600 mx-auto mb-3 md:mb-4`} />
+                    <h3 className="font-bold text-sm md:text-lg mb-1 md:mb-2">{feature.title}</h3>
+                    <p className="text-xs md:text-sm text-gray-600">{feature.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </>
         )}
 
@@ -889,6 +970,30 @@ const EduSpark = () => {
               <p className="text-gray-700 leading-relaxed text-base md:text-lg">
                 EduSpark Online Academy combines cutting-edge AI with comprehensive curriculum design to deliver personalized learning experiences from primary school through professional certifications.
               </p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 md:p-8 shadow-xl mb-8">
+              <h3 className="text-2xl font-bold mb-6 text-center text-purple-600">Meet Our Founder</h3>
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <img 
+                  src={FOUNDER_IMAGE_URL} 
+                  alt="Happy Umukoro - Founder & CEO" 
+                  className="w-32 h-32 md:w-48 md:h-48 rounded-full shadow-2xl border-4 border-purple-200 object-cover"
+                />
+                <div className="text-center md:text-left">
+                  <h4 className="text-2xl font-bold mb-2">Happy Umukoro</h4>
+                  <p className="text-purple-600 font-semibold text-lg mb-3">Founder & CEO</p>
+                  <div className="text-gray-700 space-y-1">
+                    <p>✓ Science Lab Scientist (NISLT)</p>
+                    <p>✓ AI Software Engineer</p>
+                    <p>✓ Software Developer</p>
+                    <p>✓ EdTech Innovator</p>
+                  </div>
+                  <p className="text-gray-600 mt-4 italic">
+                    "Passionate about democratizing education through AI and making quality learning accessible to everyone, everywhere."
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6 md:gap-8 mb-8">
